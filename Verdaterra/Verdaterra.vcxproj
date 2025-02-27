@@ -104,8 +104,9 @@
       <SDLCheck>true</SDLCheck>
       <PreprocessorDefinitions>_DEBUG;_CONSOLE;GLEW_STATIC;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
-      <AdditionalIncludeDirectories>$(SolutionDir)Engine;$(SolutionDir)Lib\assimp-5.4.3\include;$(SolutionDir)Lib\glew-2.2.0\include;$(SolutionDir)Lib\glfw-3.4.bin.WIN64\include;$(SolutionDir)Lib\glm-1.0.1;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>$(SolutionDir)Engine;$(SolutionDir)Lib\assimp-5.4.3\include;$(SolutionDir)Lib\glad\include;$(SolutionDir)Lib\glfw-3.4.bin.WIN64\include;$(SolutionDir)Lib\glm-1.0.1;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <RuntimeLibrary>MultiThreadedDebugDLL</RuntimeLibrary>
+      <FunctionLevelLinking>true</FunctionLevelLinking>
     </ClCompile>
     <Link>
       <SubSystem>Console</SubSystem>
