@@ -17,7 +17,7 @@ void CVertexBuffer::Unbind()
     glBindBuffer(GL_ARRAY_BUFFER, 0);
 }
 
-void CVertexBuffer::Delete()
+CVertexBuffer::~CVertexBuffer()
 {
     glDeleteBuffers(1, &Id);
 }

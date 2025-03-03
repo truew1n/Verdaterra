@@ -22,9 +22,10 @@ class CVertexBuffer : public CRenderObject {
 public:
 	CVertexBuffer(TArray<SVertex> *Vertices);
 
-	void Bind();
-	void Unbind();
-	void Delete();
+	virtual void Bind() override;
+	virtual void Unbind() override;
+
+	~CVertexBuffer();
 };
 
 #endif

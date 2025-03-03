@@ -21,12 +21,12 @@ class CShader : public CRenderObject {
 private:
     const char *MatchShaderTypeString(EShaderType Type);
 public:
+    CShader();
     uint32_t Compile(const char *Source, EShaderType Type);
-    void Create();
     uint8_t Load(const char *Filepath, EShaderType Type);
-    void Activate();
-    void Deactivate();
-    void Delete();
+    virtual void Bind() override;
+    virtual void Unbind() override;
+    ~CShader();
 };
 
 #endif

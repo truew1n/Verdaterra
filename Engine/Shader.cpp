@@ -14,6 +14,11 @@ const char *CShader::MatchShaderTypeString(EShaderType Type)
     }
 }
 
+CShader::CShader()
+{
+    Id = glCreateProgram();
+}
+
 uint8_t CShader::Load(const char *Filepath, EShaderType Type)
 {
     char *Content = read_file(Filepath);
@@ -61,22 +66,17 @@ uint32_t CShader::Compile(const char *Source, EShaderType Type)
     return ShaderId;
 }
 
-void CShader::Create()
-{
-    Id = glCreateProgram();
-}
-
-void CShader::Activate()
+void CShader::Bind()
 {
     glUseProgram(Id);
 }
 
-void CShader::Deactivate()
+void CShader::Unbind()
 {
     glUseProgram(0);
 }
 
-void CShader::Delete()
+CShader::~CShader()
 {
     glDeleteShader(Id);
 }

@@ -10,7 +10,6 @@ void CVertexArray::LinkAttribute(CVertexBuffer *VertexBuffer, uint32_t Layout, u
     VertexBuffer->Bind();
     glVertexAttribPointer(Layout, ComponentCount, Type, GL_FALSE, (GLsizei)Stride, Offset);
     glEnableVertexAttribArray(Layout);
-    VertexBuffer->Unbind();
 }
 
 void CVertexArray::Bind()
@@ -23,7 +22,7 @@ void CVertexArray::Unbind()
     glBindVertexArray(0);
 }
 
-void CVertexArray::Delete()
+CVertexArray::~CVertexArray()
 {
     glDeleteVertexArrays(1, &Id);
 }
