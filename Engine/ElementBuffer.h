@@ -7,15 +7,30 @@
 
 #include "Array.h"
 
+template<typename T>
 class CElementBuffer : public CRenderObject {
 public:
-    CElementBuffer(TArray<uint32_t> *Indices);
+    CElementBuffer(TArray<T> *Indices)
+    {
+        glGenBuffers(1, &Id);
+        glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, Id);
+        glBufferData(GL_ELEMENT_ARRAY_BUFFER, Indices->Num() * sizeof(T), Indices->begin(), GL_STATIC_DRAW);
+    }
 
-    virtual void Bind() override;
-    virtual void Unbind() override;
+    virtual void Bind() override
+    {
+        glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, Id);
+    }
 
-    ~CElementBuffer();
+    virtual void Unbind() override
+    {
+        glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0);
+    }
+
+    ~CElementBuffer()
+    {
+        glDeleteBuffers(1, &Id);
+    }
 };
 
 #endif
-

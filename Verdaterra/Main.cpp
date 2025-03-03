@@ -54,11 +54,11 @@ int main() {
     };
     TArray<uint32_t> *Indices = TArray<uint32_t>::From(StackIndices, sizeof(StackIndices) / sizeof(StackIndices[0]));
 
-    CVertexArray VertexArray;
+    CVertexArray<SVertex> VertexArray;
 
     VertexArray.Bind();
-    CVertexBuffer VertexBuffer(Vertices);
-    CElementBuffer ElementBuffer(Indices);
+    CVertexBuffer<SVertex> VertexBuffer(Vertices);
+    CElementBuffer<uint32_t> ElementBuffer(Indices);
 
     VertexArray.LinkAttribute(&VertexBuffer, 0, 3, GL_FLOAT, sizeof(SVertex), (void *)0);
     VertexArray.LinkAttribute(&VertexBuffer, 1, 3, GL_FLOAT, sizeof(SVertex), (void *)(3 * sizeof(float)));

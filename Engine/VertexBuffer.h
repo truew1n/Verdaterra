@@ -18,15 +18,30 @@ typedef struct SVertex {
 	SVertex(glm::vec3 IPosition, glm::vec3 INormal, glm::vec2 IUV) : Position(IPosition), Normal(INormal), UV(IUV) {}
 } SVertex;
 
+template<typename T>
 class CVertexBuffer : public CRenderObject {
 public:
-	CVertexBuffer(TArray<SVertex> *Vertices);
+	CVertexBuffer(TArray<T> *Vertices)
+	{
+		glGenBuffers(1, &Id);
+		glBindBuffer(GL_ARRAY_BUFFER, Id);
+		glBufferData(GL_ARRAY_BUFFER, Vertices->Num() * sizeof(T), Vertices->begin(), GL_STATIC_DRAW);
+	}
 
-	virtual void Bind() override;
-	virtual void Unbind() override;
+	virtual void Bind() override
+	{
+		glBindBuffer(GL_ARRAY_BUFFER, Id);
+	}
 
-	~CVertexBuffer();
+	virtual void Unbind() override
+	{
+		glBindBuffer(GL_ARRAY_BUFFER, 0);
+	}
+
+	~CVertexBuffer()
+	{
+		glDeleteBuffers(1, &Id);
+	}
 };
 
 #endif
-

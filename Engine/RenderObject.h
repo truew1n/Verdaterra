@@ -8,8 +8,8 @@ protected:
     uint32_t Id;
 public:
     CRenderObject() : Id(0) {}
-    virtual void Bind() {};
-    virtual void Unbind() {};
+    virtual void Bind() = 0;
+    virtual void Unbind() = 0;
     uint32_t GetId() const;
 };
 
