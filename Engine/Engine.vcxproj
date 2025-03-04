@@ -160,6 +160,7 @@
     <ClInclude Include="VertexArray.h" />
     <ClInclude Include="VertexBuffer.h" />
     <ClInclude Include="Array.h" />
+    <ClInclude Include="VertexLayout.h" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="..\Lib\glad\src\glad.c">
