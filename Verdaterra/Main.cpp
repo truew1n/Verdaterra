@@ -4,9 +4,7 @@
 #include "ElementBuffer.h"
 #include "VertexArray.h"
 #include "Shader.h"
-#include "Uniform.h"
 #include "Texture.h"
-#include "VertexLayout.h"
 
 #include "assimp/Importer.hpp"
 #include "GLFW/glfw3.h"
@@ -59,34 +57,23 @@ int main() {
     CVertexBuffer<SVertex> VertexBuffer(Vertices);
     CElementBuffer<uint32_t> ElementBuffer(Indices);
 
-    DVertexLayout Layout;
-    Layout.Add(SVertexEntry(0, 3, EVertexType::Float32, sizeof(SVertex)));
-    Layout.Add(SVertexEntry(1, 3, EVertexType::Float32, sizeof(SVertex)));
-    Layout.Add(SVertexEntry(2, 2, EVertexType::Float32, sizeof(SVertex)));
-
-    uint32_t Offset = 0;
-    for (SVertexEntry &VertexEntry : Layout) {
-        VertexArray.LinkAttribute(&VertexBuffer, VertexEntry.Layout, VertexEntry.Count, (uint32_t) VertexEntry.Type, VertexEntry.Stride, (void *) Offset);
-        Offset += VertexEntry.Count * GetSizeOfVertexType(VertexEntry.Type);
-    }
-    /* Old version
-    VertexArray.LinkAttribute(&VertexBuffer, 0, 3, GL_FLOAT, sizeof(SVertex), (void *)0);
-    VertexArray.LinkAttribute(&VertexBuffer, 1, 3, GL_FLOAT, sizeof(SVertex), (void *)(3 * sizeof(float)));
-    VertexArray.LinkAttribute(&VertexBuffer, 2, 2, GL_FLOAT, sizeof(SVertex), (void *)(6 * sizeof(float)));
-    */
+    VertexArray.LinkAttribute(&VertexBuffer, 0, 3, EVertexType::Float32, false, sizeof(SVertex), (void *)0);
+    VertexArray.LinkAttribute(&VertexBuffer, 1, 3, EVertexType::Float32, false, sizeof(SVertex), (void *)(3 * sizeof(float)));
+    VertexArray.LinkAttribute(&VertexBuffer, 2, 2, EVertexType::Float32, false, sizeof(SVertex), (void *)(6 * sizeof(float)));
+    
     VertexArray.Unbind();
 
-    uint32_t MTriangleCount = Indices->Num();
+    uint32_t TriangleCount = Indices->Num();
 
     CShader DefaultShader;
     DefaultShader.Load("Assets/Shaders/Default.vert", EShaderType::Vertex);
     DefaultShader.Load("Assets/Shaders/Default.frag", EShaderType::Fragment);
 
-    CTexture Texture = CTexture("Assets/Textures/Texture0.jpg", "UDiffuse");
+    CTexture Texture = CTexture("Assets/Textures/mta-map.jpg");
 
     DefaultShader.Bind();
 
-    Texture.SetUniform(&DefaultShader);
+    DefaultShader.SetUniform(&Texture, "UDiffuse");
     Texture.Bind();
 
     //Assimp::Importer Importer;
@@ -94,7 +81,7 @@ int main() {
     while (!glfwWindowShouldClose(Window)) {
         glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
-        glDrawElements(GL_TRIANGLES, MTriangleCount, GL_UNSIGNED_INT, 0);
+        glDrawElements(GL_TRIANGLES, TriangleCount, GL_UNSIGNED_INT, 0);
 
         glfwSwapBuffers(Window);
         glfwPollEvents();

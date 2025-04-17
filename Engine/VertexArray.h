@@ -7,6 +7,7 @@
 
 #include "VertexBuffer.h"
 
+
 template<typename T>
 class CVertexArray : public CRenderObject {
 public:
@@ -15,14 +16,15 @@ public:
         glGenVertexArrays(1, &Id);
     }
 
-	void LinkAttribute(CVertexBuffer<T> *VertexBuffer, uint32_t Layout, uint32_t Count, uint32_t Type, uint64_t Stride, void *Offset)
+	void LinkAttribute(CVertexBuffer<T> *VertexBuffer, uint32_t Layout, uint32_t Count, EVertexType Type, uint8_t Normalized, uint64_t Stride, void *Offset)
     {
         if (!VertexBuffer) {
             std::cerr << "CVertexArray :: VertexBuffer == nullptr :: Failed to link attribute!\n";
             return;
         }
         VertexBuffer->Bind();
-        glVertexAttribPointer(Layout, Count, Type, GL_FALSE, (GLsizei) Stride, Offset);
+        uint8_t ConstNormalized = GL_FALSE * !Normalized + GL_TRUE * Normalized;
+        glVertexAttribPointer(Layout, Count, (uint32_t) Type, ConstNormalized, (GLsizei) Stride, Offset);
         glEnableVertexAttribArray(Layout);
     }
 

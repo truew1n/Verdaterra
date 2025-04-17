@@ -3,10 +3,10 @@
 
 uint32_t CTexture::MMaxUnit = 0;
 
-CTexture::CTexture(const char *ITexturePath, const char *IUniformName)
+CTexture::CTexture(const char *ITexturePath)
 {
-	MUniformName = IUniformName;
-
+	MType = ETextureType::None;
+	MUnit = 0;
 	int32_t TextureWidth, TextureHeight;
 	stbi_set_flip_vertically_on_load(true);
 	uint8_t *TextureData = stbi_load(ITexturePath, &TextureWidth, &TextureHeight, &MChannels, 0);
@@ -16,7 +16,6 @@ CTexture::CTexture(const char *ITexturePath, const char *IUniformName)
 		return;
 	}
 
-	;
 	MUnit = ++MMaxUnit;
 
 	glGenTextures(1, &Id);
@@ -47,13 +46,6 @@ CTexture::CTexture(const char *ITexturePath, const char *IUniformName)
 	glGenerateMipmap(GL_TEXTURE_2D);
 
 	stbi_image_free(TextureData);
-}
-
-void CTexture::SetUniform(CShader *Shader)
-{
-	uint32_t TextureLocation = glGetUniformLocation(Shader->GetId(), MUniformName);
-
-	glUniform1i(TextureLocation, MUnit);
 }
 
 void CTexture::SetTextureParameter(ETextureParameter Type, ETextureParameterValue Value)

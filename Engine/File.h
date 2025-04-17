@@ -27,7 +27,7 @@ extern "C" {
         long file_size = ftell(file);
         fseek(file, 0, SEEK_SET);
 
-        char *content = (char *)malloc(file_size + 1);
+        char *content = (char *)malloc(file_size);
         if (content == NULL) {
             fclose(file);
             fprintf(stderr, "Memory allocation error\n");

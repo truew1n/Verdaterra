@@ -18,6 +18,18 @@ typedef struct SVertex {
 	SVertex(glm::vec3 IPosition, glm::vec3 INormal, glm::vec2 IUV) : Position(IPosition), Normal(INormal), UV(IUV) {}
 } SVertex;
 
+enum class EVertexType : uint16_t {
+	Int8 = GL_BYTE,
+	UInt8 = GL_UNSIGNED_BYTE,
+	Int16 = GL_SHORT,
+	UInt16 = GL_UNSIGNED_SHORT,
+	Int32 = GL_INT,
+	UInt32 = GL_UNSIGNED_INT,
+	Float16 = GL_HALF_FLOAT,
+	Float32 = GL_FLOAT,
+	Float64 = GL_DOUBLE
+};
+
 template<typename T>
 class CVertexBuffer : public CRenderObject {
 public:

@@ -1,6 +1,5 @@
 #include "Shader.h"
 
-
 const char *CShader::MatchShaderTypeString(EShaderType Type)
 {
     switch (Type) {
@@ -74,6 +73,144 @@ void CShader::Bind()
 void CShader::Unbind()
 {
     glUseProgram(0);
+}
+
+int32_t CShader::GetUniformLocation(const char *UniformName)
+{
+    return glGetUniformLocation(Id, UniformName);
+}
+
+
+void CShader::SetUniform(CTexture *Value, const char *UniformName)
+{
+    int32_t UniformLocation = GetUniformLocation(UniformName);
+
+    glUniform1i(UniformLocation, Value->GetUnit());
+}
+
+void CShader::SetUniform(float Value, const char *UniformName) {
+    int32_t UniformLocation = GetUniformLocation(UniformName);
+    glUniform1f(UniformLocation, Value);
+}
+
+void CShader::SetUniform(int32_t Value, const char *UniformName)
+{
+    int32_t UniformLocation = GetUniformLocation(UniformName);
+    glUniform1i(UniformLocation, Value);
+}
+
+void CShader::SetUniform(uint32_t Value, const char *UniformName)
+{
+    int32_t UniformLocation = GetUniformLocation(UniformName);
+    glUniform1ui(UniformLocation, Value);
+}
+
+void CShader::SetUniform(glm::vec2 Value, const char *UniformName)
+{
+    int32_t UniformLocation = GetUniformLocation(UniformName);
+    glUniform2fv(UniformLocation, 1, glm::value_ptr(Value));
+}
+
+void CShader::SetUniform(glm::vec3 Value, const char *UniformName)
+{
+    int32_t UniformLocation = GetUniformLocation(UniformName);
+    glUniform3fv(UniformLocation, 1, glm::value_ptr(Value));
+}
+
+void CShader::SetUniform(glm::vec4 Value, const char *UniformName)
+{
+    int32_t UniformLocation = GetUniformLocation(UniformName);
+    glUniform4fv(UniformLocation, 1, glm::value_ptr(Value));
+}
+
+void CShader::SetUniform(glm::ivec2 Value, const char *UniformName)
+{
+    int32_t UniformLocation = GetUniformLocation(UniformName);
+    glUniform2iv(UniformLocation, 1, glm::value_ptr(Value));
+}
+
+void CShader::SetUniform(glm::ivec3 Value, const char *UniformName)
+{
+    int32_t UniformLocation = GetUniformLocation(UniformName);
+    glUniform3iv(UniformLocation, 1, glm::value_ptr(Value));
+}
+
+void CShader::SetUniform(glm::ivec4 Value, const char *UniformName)
+{
+    int32_t UniformLocation = GetUniformLocation(UniformName);
+    glUniform4iv(UniformLocation, 1, glm::value_ptr(Value));
+}
+
+void CShader::SetUniform(glm::uvec2 Value, const char *UniformName)
+{
+    int32_t UniformLocation = GetUniformLocation(UniformName);
+    glUniform2uiv(UniformLocation, 1, glm::value_ptr(Value));
+}
+
+void CShader::SetUniform(glm::uvec3 Value, const char *UniformName)
+{
+    int32_t UniformLocation = GetUniformLocation(UniformName);
+    glUniform3uiv(UniformLocation, 1, glm::value_ptr(Value));
+}
+
+void CShader::SetUniform(glm::uvec4 Value, const char *UniformName)
+{
+    int32_t UniformLocation = GetUniformLocation(UniformName);
+    glUniform4uiv(UniformLocation, 1, glm::value_ptr(Value));
+}
+
+void CShader::SetUniform(glm::mat2 Value, const char *UniformName)
+{
+    int32_t UniformLocation = GetUniformLocation(UniformName);
+    glUniformMatrix2fv(UniformLocation, 1, GL_FALSE, glm::value_ptr(Value));
+}
+
+void CShader::SetUniform(glm::mat2x3 Value, const char *UniformName)
+{
+    int32_t UniformLocation = GetUniformLocation(UniformName);
+    glUniformMatrix2x3fv(UniformLocation, 1, GL_FALSE, glm::value_ptr(Value));
+}
+
+void CShader::SetUniform(glm::mat2x4 Value, const char *UniformName)
+{
+    int32_t UniformLocation = GetUniformLocation(UniformName);
+    glUniformMatrix2x4fv(UniformLocation, 1, GL_FALSE, glm::value_ptr(Value));
+}
+
+void CShader::SetUniform(glm::mat3x2 Value, const char *UniformName)
+{
+    int32_t UniformLocation = GetUniformLocation(UniformName);
+    glUniformMatrix3x2fv(UniformLocation, 1, GL_FALSE, glm::value_ptr(Value));
+}
+
+void CShader::SetUniform(glm::mat3 Value, const char *UniformName)
+{
+    int32_t UniformLocation = GetUniformLocation(UniformName);
+    glUniformMatrix3fv(UniformLocation, 1, GL_FALSE, glm::value_ptr(Value));
+}
+
+void CShader::SetUniform(glm::mat3x4 Value, const char *UniformName)
+{
+    int32_t UniformLocation = GetUniformLocation(UniformName);
+    glUniformMatrix3x4fv(UniformLocation, 1, GL_FALSE, glm::value_ptr(Value));
+}
+
+void CShader::SetUniform(glm::mat4x2 Value, const char *UniformName)
+{
+    int32_t UniformLocation = GetUniformLocation(UniformName);
+    glUniformMatrix4x2fv(UniformLocation, 1, GL_FALSE, glm::value_ptr(Value));
+}
+
+void CShader::SetUniform(glm::mat4x3 Value, const char *UniformName)
+{
+    int32_t UniformLocation = GetUniformLocation(UniformName);
+    glUniformMatrix4x3fv(UniformLocation, 1, GL_FALSE, glm::value_ptr(Value));
+}
+
+void CShader::SetUniform(glm::mat4 Value, const char *UniformName)
+{
+    int32_t UniformLocation = GetUniformLocation(UniformName);
+    glUniformMatrix4fv(UniformLocation, 1, GL_FALSE, glm::value_ptr(Value));
 }
 
 CShader::~CShader()

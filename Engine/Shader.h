@@ -3,8 +3,11 @@
 
 #include <iostream>
 #include <glad/glad.h>
+#include <glm/glm.hpp>
+#include <glm/gtc/type_ptr.hpp>
 
 #include "File.h"
+#include "Texture.h"
 
 #include "RenderObject.h"
 
@@ -26,6 +29,30 @@ public:
     uint8_t Load(const char *Filepath, EShaderType Type);
     virtual void Bind() override;
     virtual void Unbind() override;
+
+    int32_t GetUniformLocation(const char *UniformName);
+    void SetUniform(CTexture *Value, const char *UniformName);
+    void SetUniform(float Value, const char *UniformName);
+    void SetUniform(int32_t Value, const char *UniformName);
+    void SetUniform(uint32_t Value, const char *UniformName);
+    void SetUniform(glm::vec2 Value, const char *UniformName);
+    void SetUniform(glm::vec3 Value, const char *UniformName);
+    void SetUniform(glm::vec4 Value, const char *UniformName);
+    void SetUniform(glm::ivec2 Value, const char *UniformName);
+    void SetUniform(glm::ivec3 Value, const char *UniformName);
+    void SetUniform(glm::ivec4 Value, const char *UniformName);
+    void SetUniform(glm::uvec2 Value, const char *UniformName);
+    void SetUniform(glm::uvec3 Value, const char *UniformName);
+    void SetUniform(glm::uvec4 Value, const char *UniformName);
+    void SetUniform(glm::mat2 Value, const char *UniformName);
+    void SetUniform(glm::mat2x3 Value, const char *UniformName);
+    void SetUniform(glm::mat2x4 Value, const char *UniformName);
+    void SetUniform(glm::mat3x2 Value, const char *UniformName);
+    void SetUniform(glm::mat3 Value, const char *UniformName);
+    void SetUniform(glm::mat3x4 Value, const char *UniformName);
+    void SetUniform(glm::mat4x2 Value, const char *UniformName);
+    void SetUniform(glm::mat4x3 Value, const char *UniformName);
+    void SetUniform(glm::mat4 Value, const char *UniformName);
     ~CShader();
 };
 

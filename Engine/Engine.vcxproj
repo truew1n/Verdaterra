@@ -156,11 +156,9 @@
     <ClInclude Include="Shader.h" />
     <ClInclude Include="stb_image.h" />
     <ClInclude Include="Texture.h" />
-    <ClInclude Include="Uniform.h" />
     <ClInclude Include="VertexArray.h" />
     <ClInclude Include="VertexBuffer.h" />
     <ClInclude Include="Array.h" />
-    <ClInclude Include="VertexLayout.h" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="..\Lib\glad\src\glad.c">
@@ -170,7 +168,6 @@
     <ClCompile Include="Shader.cpp" />
     <ClCompile Include="stb_image.cpp" />
     <ClCompile Include="Texture.cpp" />
-    <ClCompile Include="Uniform.cpp" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

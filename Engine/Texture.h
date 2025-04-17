@@ -2,7 +2,6 @@
 #define PE_TEXTURE_H
 
 #include <glad/glad.h>
-#include "Shader.h"
 #include "stb_image.h"
 #include "RenderObject.h"
 
@@ -92,15 +91,13 @@ private:
 	static uint32_t MMaxUnit;
 
 	ETextureType MType;
-	const char *MUniformName;
 	uint32_t MUnit;
 
 	int32_t MChannels;
 public:
-	CTexture() : MType(ETextureType::None), MUniformName(nullptr), MUnit(0), MChannels(0) {};
-	CTexture(const char *ITexturePath, const char *IUniformName);
+	CTexture() : MType(ETextureType::None), MUnit(0), MChannels(0) {};
+	CTexture(const char *ITexturePath);
 
-	void SetUniform(CShader *Shader);
 	void SetTextureParameter(ETextureParameter Type, ETextureParameterValue Value);
 	virtual void Bind() override;
 	virtual void Unbind() override;
@@ -108,9 +105,6 @@ public:
 
 	ETextureType GetType() const { return MType; }
 	void SetType(ETextureType Type) { MType = Type; }
-
-	const char *GetUniformName() const { return MUniformName; }
-	void SetUniformName(const char *UniformName) { MUniformName = UniformName; }
 
 	uint32_t GetUnit() const { return MUnit; }
 
