@@ -152,6 +152,7 @@
   <ItemGroup>
     <ClInclude Include="ElementBuffer.h" />
     <ClInclude Include="File.h" />
+    <ClInclude Include="Mesh.h" />
     <ClInclude Include="RenderObject.h" />
     <ClInclude Include="Shader.h" />
     <ClInclude Include="stb_image.h" />

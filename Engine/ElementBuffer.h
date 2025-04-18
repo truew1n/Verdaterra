@@ -10,16 +10,19 @@
 template<typename T>
 class CElementBuffer : public CRenderObject {
 public:
-    CElementBuffer(TArray<T> *Indices)
+    CElementBuffer()
     {
         glGenBuffers(1, &Id);
-        glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, Id);
-        glBufferData(GL_ELEMENT_ARRAY_BUFFER, Indices->Num() * sizeof(T), Indices->begin(), GL_STATIC_DRAW);
     }
 
     virtual void Bind() override
     {
         glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, Id);
+    }
+
+    void Data(TArray<T> *Indices, EBufferUsage Usage)
+    {
+        glBufferData(GL_ELEMENT_ARRAY_BUFFER, Indices->Num() * sizeof(T), Indices->begin(), (uint32_t) Usage);
     }
 
     virtual void Unbind() override

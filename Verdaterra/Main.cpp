@@ -1,8 +1,6 @@
 #include "iostream"
 
-#include "VertexBuffer.h"
-#include "ElementBuffer.h"
-#include "VertexArray.h"
+#include "Mesh.h"
 #include "Shader.h"
 #include "Texture.h"
 
@@ -51,19 +49,7 @@ int main() {
     };
     TArray<uint32_t> *Indices = TArray<uint32_t>::From(StackIndices, sizeof(StackIndices) / sizeof(StackIndices[0]));
 
-    CVertexArray<SVertex> VertexArray;
-
-    VertexArray.Bind();
-    CVertexBuffer<SVertex> VertexBuffer(Vertices);
-    CElementBuffer<uint32_t> ElementBuffer(Indices);
-
-    VertexArray.LinkAttribute(&VertexBuffer, 0, 3, EVertexType::Float32, false, sizeof(SVertex), (void *)0);
-    VertexArray.LinkAttribute(&VertexBuffer, 1, 3, EVertexType::Float32, false, sizeof(SVertex), (void *)(3 * sizeof(float)));
-    VertexArray.LinkAttribute(&VertexBuffer, 2, 2, EVertexType::Float32, false, sizeof(SVertex), (void *)(6 * sizeof(float)));
-    
-    VertexArray.Unbind();
-
-    uint32_t TriangleCount = Indices->Num();
+    CMesh Mesh(Vertices, Indices, EBufferUsage::StaticDraw);
 
     CShader DefaultShader;
     DefaultShader.Load("Assets/Shaders/Default.vert", EShaderType::Vertex);
@@ -77,11 +63,10 @@ int main() {
     Texture.Bind();
 
     //Assimp::Importer Importer;
-    VertexArray.Bind();
     while (!glfwWindowShouldClose(Window)) {
         glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
-        glDrawElements(GL_TRIANGLES, TriangleCount, GL_UNSIGNED_INT, 0);
+        Mesh.Draw();
 
         glfwSwapBuffers(Window);
         glfwPollEvents();

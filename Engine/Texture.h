@@ -1,5 +1,5 @@
-#ifndef PE_TEXTURE_H
-#define PE_TEXTURE_H
+#ifndef EN_TEXTURE_H
+#define EN_TEXTURE_H
 
 #include <glad/glad.h>
 #include "stb_image.h"

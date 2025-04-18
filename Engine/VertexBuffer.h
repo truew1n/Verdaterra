@@ -33,16 +33,19 @@ enum class EVertexType : uint16_t {
 template<typename T>
 class CVertexBuffer : public CRenderObject {
 public:
-	CVertexBuffer(TArray<T> *Vertices)
+	CVertexBuffer()
 	{
 		glGenBuffers(1, &Id);
-		glBindBuffer(GL_ARRAY_BUFFER, Id);
-		glBufferData(GL_ARRAY_BUFFER, Vertices->Num() * sizeof(T), Vertices->begin(), GL_STATIC_DRAW);
 	}
 
 	virtual void Bind() override
 	{
 		glBindBuffer(GL_ARRAY_BUFFER, Id);
+	}
+
+	void Data(TArray<T> *Vertices, EBufferUsage Usage)
+	{
+		glBufferData(GL_ARRAY_BUFFER, Vertices->Num() * sizeof(T), Vertices->begin(), (uint32_t) Usage);
 	}
 
 	virtual void Unbind() override
