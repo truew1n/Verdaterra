@@ -1,5 +1,9 @@
 #include "Shader.h"
 
+#include <fstream>
+#include <string>
+#include <filesystem>
+
 const char *CShader::MatchShaderTypeString(EShaderType Type)
 {
     switch (Type) {
@@ -15,27 +19,27 @@ const char *CShader::MatchShaderTypeString(EShaderType Type)
 
 CShader::CShader()
 {
-    Id = glCreateProgram();
+    MId = glCreateProgram();
 }
 
 uint8_t CShader::Load(const char *Filepath, EShaderType Type)
 {
-    char *Content = read_file(Filepath);
+    std::ifstream ShaderFile(Filepath, std::ios::binary);
+    std::string Content(std::filesystem::file_size(Filepath), '\0');
+    ShaderFile.read(&Content[0], Content.size());
 
-    uint32_t ShaderId = Compile(Content, Type);
+    uint32_t ShaderId = Compile(Content.c_str(), Type);
 
     if (!ShaderId) {
-        free(Content);
         return 0;
     }
 
-    glAttachShader(Id, ShaderId);
-    glLinkProgram(Id);
-    glValidateProgram(Id);
+    glAttachShader(MId, ShaderId);
+    glLinkProgram(MId);
+    glValidateProgram(MId);
 
     glDeleteShader(ShaderId);
 
-    free(Content);
     return 1;
 }
 
@@ -67,7 +71,7 @@ uint32_t CShader::Compile(const char *Source, EShaderType Type)
 
 void CShader::Bind()
 {
-    glUseProgram(Id);
+    glUseProgram(MId);
 }
 
 void CShader::Unbind()
@@ -77,7 +81,7 @@ void CShader::Unbind()
 
 int32_t CShader::GetUniformLocation(const char *UniformName)
 {
-    return glGetUniformLocation(Id, UniformName);
+    return glGetUniformLocation(MId, UniformName);
 }
 
 
@@ -215,5 +219,5 @@ void CShader::SetUniform(glm::mat4 Value, const char *UniformName)
 
 CShader::~CShader()
 {
-    glDeleteShader(Id);
+    glDeleteShader(MId);
 }

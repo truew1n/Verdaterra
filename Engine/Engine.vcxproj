@@ -130,8 +130,9 @@
       <SDLCheck>true</SDLCheck>
       <PreprocessorDefinitions>NDEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
-      <AdditionalIncludeDirectories>$(SolutionDir)Lib\assimp-5.4.3\include;$(SolutionDir)Lib\glfw-3.4.bin.WIN64\include;$(SolutionDir)Lib\glad\include;$(SolutionDir)Lib\glm-1.0.1;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>$(SolutionDir)Lib\assimp\include;$(SolutionDir)Lib\glfw-3.4.bin.WIN64\include;$(SolutionDir)Lib\glad\include;$(SolutionDir)Lib\glm-1.0.1;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <RuntimeLibrary>MultiThreadedDLL</RuntimeLibrary>
+      <LanguageStandard>stdcpp20</LanguageStandard>
     </ClCompile>
     <Link>
       <SubSystem>Console</SubSystem>
@@ -143,7 +144,7 @@
       <AdditionalDependencies>opengl32.lib;glfw3.lib;assimp-vc143-mt.lib</AdditionalDependencies>
     </Lib>
     <Lib>
-      <AdditionalLibraryDirectories>$(SolutionDir)Lib\assimp-5.4.3\lib;$(SolutionDir)Lib\glfw-3.4.bin.WIN64\lib-vc2022;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
+      <AdditionalLibraryDirectories>$(SolutionDir)Lib\assimp\lib;$(SolutionDir)Lib\glfw-3.4.bin.WIN64\lib-vc2022;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
     </Lib>
     <ProjectReference>
       <LinkLibraryDependencies>true</LinkLibraryDependencies>
@@ -151,7 +152,6 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClInclude Include="ElementBuffer.h" />
-    <ClInclude Include="File.h" />
     <ClInclude Include="Mesh.h" />
     <ClInclude Include="RenderObject.h" />
     <ClInclude Include="Shader.h" />
@@ -159,7 +159,6 @@
     <ClInclude Include="Texture.h" />
     <ClInclude Include="VertexArray.h" />
     <ClInclude Include="VertexBuffer.h" />
-    <ClInclude Include="Array.h" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="..\Lib\glad\src\glad.c">

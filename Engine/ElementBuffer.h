@@ -5,24 +5,24 @@
 
 #include "RenderObject.h"
 
-#include "Array.h"
+#include <vector>
 
 template<typename T>
-class CElementBuffer : public CRenderObject {
+class TElementBuffer : public CRenderObject {
 public:
-    CElementBuffer()
+    TElementBuffer()
     {
-        glGenBuffers(1, &Id);
+        glGenBuffers(1, &MId);
     }
 
     virtual void Bind() override
     {
-        glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, Id);
+        glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, MId);
     }
 
-    void Data(TArray<T> *Indices, EBufferUsage Usage)
+    void Data(std::vector<T> &Indices, EBufferUsage Usage)
     {
-        glBufferData(GL_ELEMENT_ARRAY_BUFFER, Indices->Num() * sizeof(T), Indices->begin(), (uint32_t) Usage);
+        glBufferData(GL_ELEMENT_ARRAY_BUFFER, Indices.size() * sizeof(T), Indices.data(), (uint32_t) Usage);
     }
 
     virtual void Unbind() override
@@ -30,9 +30,9 @@ public:
         glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0);
     }
 
-    ~CElementBuffer()
+    ~TElementBuffer()
     {
-        glDeleteBuffers(1, &Id);
+        glDeleteBuffers(1, &MId);
     }
 };
 

@@ -3,24 +3,24 @@
 
 uint32_t CTexture::MMaxUnit = 0;
 
-CTexture::CTexture(const char *ITexturePath)
+CTexture::CTexture(const char *NTexturePath)
 {
 	MType = ETextureType::None;
 	MUnit = 0;
 	int32_t TextureWidth, TextureHeight;
 	stbi_set_flip_vertically_on_load(true);
-	uint8_t *TextureData = stbi_load(ITexturePath, &TextureWidth, &TextureHeight, &MChannels, 0);
+	uint8_t *TextureData = stbi_load(NTexturePath, &TextureWidth, &TextureHeight, &MChannels, 0);
 
 	if (!TextureData) {
-		std::cerr << "CTexture :: Failed to load texture: " << ITexturePath << "\n";
+		std::cerr << "CTexture :: Failed to load texture: " << NTexturePath << "\n";
 		return;
 	}
 
 	MUnit = ++MMaxUnit;
 
-	glGenTextures(1, &Id);
+	glGenTextures(1, &MId);
 	glActiveTexture(GL_TEXTURE0 + MUnit);
-	glBindTexture(GL_TEXTURE_2D, Id);
+	glBindTexture(GL_TEXTURE_2D, MId);
 
 	SetTextureParameter(ETextureParameter::MinFilter, ETextureParameterValue::LinearMipMapLinear);
 	SetTextureParameter(ETextureParameter::MagFilter, ETextureParameterValue::Linear);
@@ -56,7 +56,7 @@ void CTexture::SetTextureParameter(ETextureParameter Type, ETextureParameterValu
 void CTexture::Bind()
 {
 	glActiveTexture(GL_TEXTURE0 + MUnit);
-	glBindTexture(GL_TEXTURE_2D, Id);
+	glBindTexture(GL_TEXTURE_2D, MId);
 }
 
 void CTexture::Unbind()
@@ -66,5 +66,5 @@ void CTexture::Unbind()
 
 CTexture::~CTexture()
 {
-	glDeleteTextures(1, &Id);
+	glDeleteTextures(1, &MId);
 }

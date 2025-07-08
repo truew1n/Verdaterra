@@ -1,58 +1,57 @@
 #ifndef EN_MESH_H
 #define EN_MESH_H
 
-#include "Array.h"
-
 #include "ElementBuffer.h"
 #include "VertexBuffer.h"
 #include "VertexArray.h"
 
+#include <vector>
 
 class CMesh {
 private:
     EBufferUsage MUsage;
-    CVertexBuffer<SVertex> MVertexBuffer;
-	CElementBuffer<uint32_t> MElementBuffer;	
-	CVertexArray<SVertex> MVertexArray;
+    TVertexArray<SVertex> MVertexArray;
+    TVertexBuffer<SVertex> MVertexBuffer;
+    TElementBuffer<uint32_t> MElementBuffer;
 
-    uint32_t MPolyCount;
+    uint32_t MPolygonCount;
 
 public:
-    CMesh() : MUsage(EBufferUsage::None) {}
-	CMesh(TArray<SVertex> *Vertices, TArray<uint32_t> *Indices, EBufferUsage Usage)
+    CMesh(std::vector<SVertex> &NVertices, std::vector<uint32_t> &NIndices, EBufferUsage NUsage)
 	{
-        MUsage = Usage;
-        if (!Vertices) {
-            std::cerr << "CMesh :: Vertices == nullptr :: Failed to create mesh!\n";
-            return;
-        }
-        if (!Indices) {
-            std::cerr << "CMesh :: Indices == nullptr :: Failed to create mesh!\n";
-            return;
-        }
+        MUsage = EBufferUsage::None;
+        MPolygonCount = 0;
+        
         MVertexArray.Bind();
-
         MVertexBuffer.Bind();
         MElementBuffer.Bind();
-        MVertexBuffer.Data(Vertices, Usage);
-        MElementBuffer.Data(Indices, Usage);
 
-        MVertexArray.LinkAttribute(&MVertexBuffer, 0, 3, EVertexType::Float32, false, sizeof(SVertex), (void *)0);
-        MVertexArray.LinkAttribute(&MVertexBuffer, 1, 3, EVertexType::Float32, false, sizeof(SVertex), (void *)(3 * sizeof(float)));
-        MVertexArray.LinkAttribute(&MVertexBuffer, 2, 2, EVertexType::Float32, false, sizeof(SVertex), (void *)(6 * sizeof(float)));
+        MVertexBuffer.Data(NVertices, NUsage);
+        MElementBuffer.Data(NIndices, NUsage);
+
+        MVertexArray.LinkAttribute(MVertexBuffer, 0, 3, EVertexType::Float32, false, sizeof(SVertex), (void *)0);
+        MVertexArray.LinkAttribute(MVertexBuffer, 1, 3, EVertexType::Float32, false, sizeof(SVertex), (void *)(3 * sizeof(float)));
+        MVertexArray.LinkAttribute(MVertexBuffer, 2, 2, EVertexType::Float32, false, sizeof(SVertex), (void *)(6 * sizeof(float)));
 
         MVertexArray.Unbind();
         MElementBuffer.Unbind();
         MVertexBuffer.Unbind();
+        
 
-        MPolyCount = Indices->Num();
+        MUsage = NUsage;
+        MPolygonCount = (uint32_t) NIndices.size();
 	}
 
     void Draw()
     {
         MVertexArray.Bind();
-        glDrawElements(GL_TRIANGLES, MPolyCount, GL_UNSIGNED_INT, 0);
+        glDrawElements(GL_TRIANGLES, MPolygonCount, GL_UNSIGNED_INT, nullptr);
         MVertexArray.Unbind();
+    }
+
+    uint32_t GetPolygonCount() const
+    {
+        return MPolygonCount;
     }
 
 	~CMesh()

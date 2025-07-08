@@ -96,7 +96,7 @@ private:
 	int32_t MChannels;
 public:
 	CTexture() : MType(ETextureType::None), MUnit(0), MChannels(0) {};
-	CTexture(const char *ITexturePath);
+	CTexture(const char *NTexturePath);
 
 	void SetTextureParameter(ETextureParameter Type, ETextureParameterValue Value);
 	virtual void Bind() override;

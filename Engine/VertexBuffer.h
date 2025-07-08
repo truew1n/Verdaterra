@@ -6,16 +6,16 @@
 
 #include "RenderObject.h"
 
-#include "Array.h"
+#include <vector>
 
 typedef struct SVertex {
-	glm::vec3 Position;
-	glm::vec3 Normal;
-	glm::vec2 UV;
+	glm::vec3 MPosition;
+	glm::vec3 MNormal;
+	glm::vec2 MUV;
 
-	SVertex() : Position(0.0f), Normal(0.0f), UV(0.0f) {}
-	SVertex(glm::vec3 IPosition, glm::vec2 IUV) : Position(IPosition), Normal(0.0f), UV(IUV) {}
-	SVertex(glm::vec3 IPosition, glm::vec3 INormal, glm::vec2 IUV) : Position(IPosition), Normal(INormal), UV(IUV) {}
+	SVertex() : MPosition(0.0f), MNormal(0.0f), MUV(0.0f) {}
+	SVertex(glm::vec3 NPosition, glm::vec2 NUV) : MPosition(NPosition), MNormal(0.0f), MUV(NUV) {}
+	SVertex(glm::vec3 NPosition, glm::vec3 NNormal, glm::vec2 IUV) : MPosition(NPosition), MNormal(NNormal), MUV(IUV) {}
 } SVertex;
 
 enum class EVertexType : uint16_t {
@@ -31,21 +31,21 @@ enum class EVertexType : uint16_t {
 };
 
 template<typename T>
-class CVertexBuffer : public CRenderObject {
+class TVertexBuffer : public CRenderObject {
 public:
-	CVertexBuffer()
+	TVertexBuffer()
 	{
-		glGenBuffers(1, &Id);
+		glGenBuffers(1, &MId);
 	}
 
 	virtual void Bind() override
 	{
-		glBindBuffer(GL_ARRAY_BUFFER, Id);
+		glBindBuffer(GL_ARRAY_BUFFER, MId);
 	}
 
-	void Data(TArray<T> *Vertices, EBufferUsage Usage)
+	void Data(std::vector<T> &Vertices, EBufferUsage Usage)
 	{
-		glBufferData(GL_ARRAY_BUFFER, Vertices->Num() * sizeof(T), Vertices->begin(), (uint32_t) Usage);
+		glBufferData(GL_ARRAY_BUFFER, Vertices.size() * sizeof(T), Vertices.data(), (uint32_t) Usage);
 	}
 
 	virtual void Unbind() override
@@ -53,9 +53,9 @@ public:
 		glBindBuffer(GL_ARRAY_BUFFER, 0);
 	}
 
-	~CVertexBuffer()
+	~TVertexBuffer()
 	{
-		glDeleteBuffers(1, &Id);
+		glDeleteBuffers(1, &MId);
 	}
 };
 

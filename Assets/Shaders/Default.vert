@@ -20,7 +20,5 @@ void main()
     ENormal = LNormal;
     EUV = LUV;
 
-    // gl_Position = UProjection * UView * WorldPosition;
-
-    gl_Position = vec4(LPosition, 1.0);
+    gl_Position = UProjection * UView * WorldPosition;
 }

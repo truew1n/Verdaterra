@@ -23,9 +23,9 @@ enum class EBufferUsage : uint32_t {
 
 class CRenderObject {
 protected:
-    uint32_t Id;
+    uint32_t MId;
 public:
-    CRenderObject() : Id(0) {}
+    CRenderObject() : MId(0) {}
     virtual void Bind() = 0;
     virtual void Unbind() = 0;
     uint32_t GetId() const;
