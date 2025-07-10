@@ -50,7 +50,7 @@ CTexture::CTexture(const char *NTexturePath)
 
 void CTexture::SetTextureParameter(ETextureParameter Type, ETextureParameterValue Value)
 {
-	glTexParameteri(GL_TEXTURE_2D, (GLenum)Type, (GLint)Value);
+	glTexParameteri(GL_TEXTURE_2D, static_cast<GLenum>(Type), static_cast<GLint>(Value));
 }
 
 void CTexture::Bind()

@@ -7,7 +7,8 @@
 
 #include <vector>
 
-template<typename T>
+
+template<typename TIndexType>
 class TElementBuffer : public CRenderObject {
 public:
     TElementBuffer()
@@ -20,9 +21,9 @@ public:
         glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, MId);
     }
 
-    void Data(std::vector<T> &Indices, EBufferUsage Usage)
+    void Data(std::vector<TIndexType> &Indices, EBufferUsage Usage)
     {
-        glBufferData(GL_ELEMENT_ARRAY_BUFFER, Indices.size() * sizeof(T), Indices.data(), (uint32_t) Usage);
+        glBufferData(GL_ELEMENT_ARRAY_BUFFER, Indices.size() * sizeof(TIndexType), Indices.data(), static_cast<uint32_t>(Usage));
     }
 
     virtual void Unbind() override

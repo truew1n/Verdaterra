@@ -5,6 +5,7 @@
 
 #include <stdint.h>
 
+
 enum class EBufferUsage : uint32_t {
     None = 0,
 
@@ -20,6 +21,7 @@ enum class EBufferUsage : uint32_t {
     DynamicRead = GL_DYNAMIC_READ,
     DynamicCopy = GL_DYNAMIC_COPY
 };
+
 
 class CRenderObject {
 protected:

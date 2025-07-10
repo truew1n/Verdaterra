@@ -7,40 +7,71 @@
 
 #include <vector>
 
+
+typedef struct SLinkRule {
+    uint32_t Layout;
+    uint32_t Count;
+    EVertexComponentType Type;
+    uint8_t Normalized;
+    void *Offset;
+
+    SLinkRule() :
+        Layout(0),
+        Count(0),
+        Type(EVertexComponentType::None),
+        Normalized(false),
+        Offset(nullptr)
+    { }
+
+    SLinkRule(
+        uint32_t NLayout,
+        uint32_t NCount,
+        EVertexComponentType NType,
+        uint8_t NNormalized,
+        void *NOffset
+    ) :
+        Layout(NLayout),
+        Count(NCount),
+        Type(NType),
+        Normalized(NNormalized),
+        Offset(NOffset)
+    { }
+} SLinkRule;
+
+
+template<typename TVertexType, typename TIndexType>
 class CMesh {
 private:
     EBufferUsage MUsage;
-    TVertexArray<SVertex> MVertexArray;
-    TVertexBuffer<SVertex> MVertexBuffer;
-    TElementBuffer<uint32_t> MElementBuffer;
-
     uint32_t MPolygonCount;
+    
+    TVertexArray<TVertexType> MVertexArray;
+    TVertexBuffer<TVertexType> MVertexBuffer;
+    TElementBuffer<TIndexType> MElementBuffer;
 
 public:
-    CMesh(std::vector<SVertex> &NVertices, std::vector<uint32_t> &NIndices, EBufferUsage NUsage)
-	{
-        MUsage = EBufferUsage::None;
-        MPolygonCount = 0;
-        
+    CMesh() : MUsage(EBufferUsage::None), MPolygonCount(0) {}
+
+    void Data(std::vector<TVertexType> &Vertices, std::vector<TIndexType> &Indices, std::vector<SLinkRule> &LinkRules, EBufferUsage Usage)
+    {
         MVertexArray.Bind();
         MVertexBuffer.Bind();
         MElementBuffer.Bind();
 
-        MVertexBuffer.Data(NVertices, NUsage);
-        MElementBuffer.Data(NIndices, NUsage);
+        MVertexBuffer.Data(Vertices, Usage);
+        MElementBuffer.Data(Indices, Usage);
 
-        MVertexArray.LinkAttribute(MVertexBuffer, 0, 3, EVertexType::Float32, false, sizeof(SVertex), (void *)0);
-        MVertexArray.LinkAttribute(MVertexBuffer, 1, 3, EVertexType::Float32, false, sizeof(SVertex), (void *)(3 * sizeof(float)));
-        MVertexArray.LinkAttribute(MVertexBuffer, 2, 2, EVertexType::Float32, false, sizeof(SVertex), (void *)(6 * sizeof(float)));
+        for (const SLinkRule &LinkRule : LinkRules) {
+            MVertexArray.LinkAttribute(LinkRule.Layout, LinkRule.Count, LinkRule.Type, LinkRule.Normalized, sizeof(TVertexType), LinkRule.Offset);
+        }
 
         MVertexArray.Unbind();
         MElementBuffer.Unbind();
         MVertexBuffer.Unbind();
-        
 
-        MUsage = NUsage;
-        MPolygonCount = (uint32_t) NIndices.size();
-	}
+        MUsage = Usage;
+        MPolygonCount = static_cast<uint32_t>(Indices.size());
+    }
 
     void Draw()
     {
@@ -56,7 +87,7 @@ public:
 
 	~CMesh()
 	{
-
+        
 	}
 };
 

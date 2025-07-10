@@ -5,6 +5,7 @@
 #include "stb_image.h"
 #include "RenderObject.h"
 
+
 enum class ETextureParameter : uint32_t {
 	/*
 		Possible values (ETextureParameterValue):
@@ -42,6 +43,7 @@ enum class ETextureParameter : uint32_t {
 	WrapV = GL_TEXTURE_WRAP_T
 };
 
+
 enum class ETextureParameterValue : int32_t {
 	Nearest = GL_NEAREST,
 	Linear = GL_LINEAR,
@@ -56,6 +58,7 @@ enum class ETextureParameterValue : int32_t {
 	Repeat = GL_REPEAT,
 	MirrorClampToEdge = GL_MIRROR_CLAMP_TO_EDGE
 };
+
 
 enum class ETextureType : int8_t {
 	None = 0,
@@ -85,6 +88,7 @@ enum class ETextureType : int8_t {
 	MayaSpecularColor = 24,
 	MayaSpecularRoughness = 25
 };
+
 
 class CTexture : public CRenderObject {
 private:

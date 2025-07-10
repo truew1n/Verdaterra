@@ -59,15 +59,6 @@ inline void ResizeCallback(GLFWwindow *Window, int32_t FramebufferWidth, int32_t
     glViewport(0, 0, FramebufferWidth, FramebufferHeight);
 }
 
-glm::vec3 ToGLMVec3(aiVector3D Vector3D)
-{
-    return glm::vec3(
-        Vector3D.x,
-        Vector3D.y,
-        Vector3D.z
-    );
-}
-
 int main() {
     if (!glfwInit()) return -1;
 
@@ -95,7 +86,7 @@ int main() {
 
     Assimp::Importer Importer;
     const aiScene *AssimpScene = Importer.ReadFile(
-        "Assets/Models/Map/scene.gltf",
+        "Assets/Models/Crops/Apple_4.fbx",
         aiProcess_GenNormals |
         aiProcess_Triangulate |
         aiProcess_GenBoundingBoxes |
@@ -105,20 +96,24 @@ int main() {
     uint32_t MeshCount = AssimpScene->mNumMeshes;
     uint32_t MaterialCount = AssimpScene->mNumMaterials;
 
-    std::vector<CMesh *> Meshes(MeshCount);
+    std::vector<CMesh<SVertex, uint32_t>> Meshes(MeshCount);
     std::vector<glm::vec4> Materials(MaterialCount);
+
+    std::vector<SLinkRule> LinkRules = {
+        SLinkRule(0, 3, EVertexComponentType::Float32, false, (void *) offsetof(SVertex, MPosition)),
+        SLinkRule(1, 3, EVertexComponentType::Float32, false, (void *) offsetof(SVertex, MNormal)),
+        SLinkRule(2, 2, EVertexComponentType::Float32, false, (void *) offsetof(SVertex, MUV))
+    };
 
     for (uint32_t I = 0; I < MeshCount; ++I) {
         aiMesh *AssimpMesh = AssimpScene->mMeshes[I];
-
-        assert(AssimpMesh->HasTextureCoords(0));
-
+        
         int32_t VertexCount = AssimpMesh->mNumVertices;
 
         std::vector<SVertex> Vertices(VertexCount);
         for (int32_t V = 0; V < VertexCount; ++V) {
-            glm::vec3 Location = ToGLMVec3(AssimpMesh->mVertices[V]);
-            glm::vec3 Normal = ToGLMVec3(AssimpMesh->mNormals[V]);
+            glm::vec3 Location = *((glm::vec3 *) &AssimpMesh->mVertices[V]);
+            glm::vec3 Normal = *((glm::vec3 *) &AssimpMesh->mNormals[V]);
             glm::vec2 UV = glm::vec2(1.0f);
             if (AssimpMesh->HasTextureCoords(0)) {
                 UV = glm::vec2(AssimpMesh->mTextureCoords[0][V].x, AssimpMesh->mTextureCoords[0][V].y);
@@ -140,10 +135,11 @@ int main() {
         }
 
         aiMaterial *AssimpMaterial = AssimpScene->mMaterials[AssimpMesh->mMaterialIndex];
+        
         aiColor4D DiffuseColor;
         AssimpMaterial->Get(AI_MATKEY_COLOR_DIFFUSE, DiffuseColor);
 
-        Meshes[I] = new CMesh(Vertices, Indices, EBufferUsage::StaticDraw);
+        Meshes[I].Data(Vertices, Indices, LinkRules, EBufferUsage::StaticDraw);
         Materials[I] = glm::vec4(DiffuseColor.r, DiffuseColor.g, DiffuseColor.b, DiffuseColor.a);
     }
 
@@ -155,11 +151,12 @@ int main() {
     DefaultShader.Load("Assets/Shaders/Default.frag", EShaderType::Fragment);
 
     DefaultShader.Bind();
-    DefaultShader.SetUniform(0, "UHasTexture");
+    DefaultShader.SetUniform(0, "UBTexture");
     DefaultShader.SetUniform(Projection, "UProjection");
     DefaultShader.SetUniform(Model, "UTransform");
 
     glEnable(GL_DEPTH_TEST);
+
     glEnable(GL_CULL_FACE);
     glCullFace(GL_BACK);
     glFrontFace(GL_CCW);
@@ -181,7 +178,7 @@ int main() {
 
         for (uint32_t I = 0; I < MeshCount; ++I) {
             DefaultShader.SetUniform(Materials[I], "UColorDiffuse");
-            Meshes[I]->Draw();
+            Meshes[I].Draw();
         }
 
         glfwSwapBuffers(Window);

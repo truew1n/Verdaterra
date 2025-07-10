@@ -8,6 +8,7 @@
 
 #include <vector>
 
+
 typedef struct SVertex {
 	glm::vec3 MPosition;
 	glm::vec3 MNormal;
@@ -18,7 +19,9 @@ typedef struct SVertex {
 	SVertex(glm::vec3 NPosition, glm::vec3 NNormal, glm::vec2 IUV) : MPosition(NPosition), MNormal(NNormal), MUV(IUV) {}
 } SVertex;
 
-enum class EVertexType : uint16_t {
+
+enum class EVertexComponentType : uint16_t {
+	None = 0,
 	Int8 = GL_BYTE,
 	UInt8 = GL_UNSIGNED_BYTE,
 	Int16 = GL_SHORT,
@@ -27,10 +30,11 @@ enum class EVertexType : uint16_t {
 	UInt32 = GL_UNSIGNED_INT,
 	Float16 = GL_HALF_FLOAT,
 	Float32 = GL_FLOAT,
-	Float64 = GL_DOUBLE
+	Float64 = GL_DOUBLE	
 };
 
-template<typename T>
+
+template<typename TVertexType>
 class TVertexBuffer : public CRenderObject {
 public:
 	TVertexBuffer()
@@ -43,9 +47,9 @@ public:
 		glBindBuffer(GL_ARRAY_BUFFER, MId);
 	}
 
-	void Data(std::vector<T> &Vertices, EBufferUsage Usage)
+	void Data(std::vector<TVertexType> &Vertices, EBufferUsage Usage)
 	{
-		glBufferData(GL_ARRAY_BUFFER, Vertices.size() * sizeof(T), Vertices.data(), (uint32_t) Usage);
+		glBufferData(GL_ARRAY_BUFFER, Vertices.size() * sizeof(TVertexType), Vertices.data(), static_cast<uint32_t>(Usage));
 	}
 
 	virtual void Unbind() override

@@ -54,7 +54,7 @@ uint32_t CShader::Compile(const char *Source, EShaderType Type)
     if (!Result) {
         int32_t Length;
         glGetShaderiv(ShaderId, GL_INFO_LOG_LENGTH, &Length);
-        char *Message = (char *)malloc(Length * sizeof(char));
+        char *Message = static_cast<char *>(malloc(Length * sizeof(char)));
         glGetShaderInfoLog(ShaderId, Length, &Length, Message);
         printf(
             "Failed to compile %s shader!\n%s\n",

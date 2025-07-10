@@ -16,7 +16,7 @@ public:
         glGenVertexArrays(1, &MId);
     }
 
-	void LinkAttribute(TVertexBuffer<T> &VertexBuffer, uint32_t Layout, uint32_t Count, EVertexType Type, uint8_t Normalized, uint64_t Stride, void *Offset)
+	void LinkAttribute(uint32_t Layout, uint32_t Count, EVertexComponentType Type, uint8_t Normalized, uint64_t Stride, void *Offset)
     {
         uint8_t ConstNormalized = GL_FALSE * !Normalized + GL_TRUE * Normalized;
         glVertexAttribPointer(Layout, Count, (uint32_t) Type, ConstNormalized, (GLsizei) Stride, Offset);
