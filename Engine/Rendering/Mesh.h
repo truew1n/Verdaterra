@@ -45,29 +45,33 @@ private:
     EBufferUsage MUsage;
     uint32_t MPolygonCount;
     
-    TVertexArray<TVertexType> MVertexArray;
-    TVertexBuffer<TVertexType> MVertexBuffer;
-    TElementBuffer<TIndexType> MElementBuffer;
+    TVertexArray<TVertexType> *MVertexArray;
+    TVertexBuffer<TVertexType> *MVertexBuffer;
+    TElementBuffer<TIndexType> *MElementBuffer;
 
 public:
     CMesh() : MUsage(EBufferUsage::None), MPolygonCount(0) {}
 
-    void Data(std::vector<TVertexType> &Vertices, std::vector<TIndexType> &Indices, std::vector<SLinkRule> &LinkRules, EBufferUsage Usage)
+    void Data(const std::vector<TVertexType> &Vertices, const std::vector<TIndexType> &Indices, const std::vector<SLinkRule> &LinkRules, EBufferUsage Usage)
     {
-        MVertexArray.Bind();
-        MVertexBuffer.Bind();
-        MElementBuffer.Bind();
+        MVertexArray = new TVertexArray<TVertexType>();
+        MVertexBuffer = new TVertexBuffer<TVertexType>();
+        MElementBuffer = new TElementBuffer<TIndexType>();
 
-        MVertexBuffer.Data(Vertices, Usage);
-        MElementBuffer.Data(Indices, Usage);
+        MVertexArray->Bind();
+        MVertexBuffer->Bind();
+        MElementBuffer->Bind();
+
+        MVertexBuffer->Data(Vertices, Usage);
+        MElementBuffer->Data(Indices, Usage);
 
         for (const SLinkRule &LinkRule : LinkRules) {
-            MVertexArray.LinkAttribute(LinkRule.Layout, LinkRule.Count, LinkRule.Type, LinkRule.Normalized, sizeof(TVertexType), LinkRule.Offset);
+            MVertexArray->LinkAttribute(LinkRule.Layout, LinkRule.Count, LinkRule.Type, LinkRule.Normalized, sizeof(TVertexType), LinkRule.Offset);
         }
 
-        MVertexArray.Unbind();
-        MElementBuffer.Unbind();
-        MVertexBuffer.Unbind();
+        MVertexArray->Unbind();
+        MElementBuffer->Unbind();
+        MVertexBuffer->Unbind();
 
         MUsage = Usage;
         MPolygonCount = static_cast<uint32_t>(Indices.size());
@@ -75,9 +79,9 @@ public:
 
     void Draw()
     {
-        MVertexArray.Bind();
+        MVertexArray->Bind();
         glDrawElements(GL_TRIANGLES, MPolygonCount, GL_UNSIGNED_INT, nullptr);
-        MVertexArray.Unbind();
+        MVertexArray->Unbind();
     }
 
     uint32_t GetPolygonCount() const
@@ -87,8 +91,12 @@ public:
 
 	~CMesh()
 	{
-        
+        if (MVertexArray) delete MVertexArray;
+        if (MVertexBuffer) delete MVertexBuffer;
+        if (MElementBuffer) delete MElementBuffer;
 	}
 };
+
+typedef CMesh<SVertex, uint32_t> DMesh;
 
 #endif

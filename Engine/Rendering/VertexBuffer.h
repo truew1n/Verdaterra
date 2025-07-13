@@ -4,7 +4,7 @@
 #include "glad/glad.h"
 #include "glm/glm.hpp"
 
-#include "RenderObject.h"
+#include "DeviceBuffer.h"
 
 #include <vector>
 
@@ -35,7 +35,7 @@ enum class EVertexComponentType : uint16_t {
 
 
 template<typename TVertexType>
-class TVertexBuffer : public CRenderObject {
+class TVertexBuffer : public CDeviceBuffer {
 public:
 	TVertexBuffer()
 	{
@@ -47,7 +47,7 @@ public:
 		glBindBuffer(GL_ARRAY_BUFFER, MId);
 	}
 
-	void Data(std::vector<TVertexType> &Vertices, EBufferUsage Usage)
+	void Data(const std::vector<TVertexType> &Vertices, EBufferUsage Usage)
 	{
 		glBufferData(GL_ARRAY_BUFFER, Vertices.size() * sizeof(TVertexType), Vertices.data(), static_cast<uint32_t>(Usage));
 	}

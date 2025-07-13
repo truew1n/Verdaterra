@@ -3,7 +3,8 @@
 
 #include <glad/glad.h>
 #include "stb_image.h"
-#include "RenderObject.h"
+
+#include "DeviceBuffer.h"
 
 
 enum class ETextureParameter : uint32_t {
@@ -90,7 +91,7 @@ enum class ETextureType : int8_t {
 };
 
 
-class CTexture : public CRenderObject {
+class CTexture : public CDeviceBuffer {
 private:
 	static uint32_t MMaxUnit;
 

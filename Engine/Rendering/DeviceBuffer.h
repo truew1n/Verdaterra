@@ -23,14 +23,15 @@ enum class EBufferUsage : uint32_t {
 };
 
 
-class CRenderObject {
+class CDeviceBuffer {
 protected:
     uint32_t MId;
 public:
-    CRenderObject() : MId(0) {}
+    CDeviceBuffer() : MId(0) {}
     virtual void Bind() = 0;
     virtual void Unbind() = 0;
     uint32_t GetId() const;
+    ~CDeviceBuffer() {};
 };
 
 #endif

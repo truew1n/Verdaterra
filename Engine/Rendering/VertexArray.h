@@ -3,13 +3,13 @@
 
 #include <glad/glad.h>
 
-#include "RenderObject.h"
+#include "DeviceBuffer.h"
 
 #include "VertexBuffer.h"
 
 
 template<typename T>
-class TVertexArray : public CRenderObject {
+class TVertexArray : public CDeviceBuffer {
 public:
 	TVertexArray()
     {

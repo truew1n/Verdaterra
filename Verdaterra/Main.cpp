@@ -1,8 +1,8 @@
 #include "iostream"
 
-#include "Mesh.h"
-#include "Shader.h"
-#include "Texture.h"
+#include "Rendering/Mesh.h"
+#include "Rendering/Pipeline.h"
+#include "Rendering/Texture.h"
 
 #include <assimp/Importer.hpp>
 #include <assimp/scene.h>
@@ -23,18 +23,18 @@ bool FirstMouse = true;
 float CameraSpeed = 0.05f;
 float MouseSensitivity = 0.1f;
 
-void MouseCallback(GLFWwindow *window, double xpos, double ypos) {
+void MouseCallback(GLFWwindow *Window, double X, double Y) {
     if (FirstMouse) {
-        LastX = (float)xpos;
-        LastY = (float)ypos;
+        LastX = static_cast<float>(X);
+        LastY = static_cast<float>(Y);
         FirstMouse = false;
     }
 
-    float xoffset = (float)(xpos - LastX);
-    float yoffset = (float)(LastY - ypos); // reversed: y-coordinates go bottom to top
+    float xoffset = static_cast<float>(X - LastX);
+    float yoffset = static_cast<float>(LastY - Y); // reversed: y-coordinates go bottom to top
 
-    LastX = (float)xpos;
-    LastY = (float)ypos;
+    LastX = static_cast<float>(X);
+    LastY = static_cast<float>(Y);
 
     xoffset *= MouseSensitivity;
     yoffset *= MouseSensitivity;
@@ -66,7 +66,10 @@ int main() {
     glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 6);
     glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
 
-    GLFWwindow *Window = glfwCreateWindow(1280, 720, "Verdaterra", NULL, NULL);
+    GLFWmonitor *Monitor = glfwGetPrimaryMonitor();
+    const GLFWvidmode *Mode = glfwGetVideoMode(Monitor);
+
+    GLFWwindow *Window = glfwCreateWindow(Mode->width, Mode->height, "Verdaterra", Monitor, NULL);
 
     if (!Window) {
         glfwTerminate();
@@ -79,6 +82,8 @@ int main() {
         return -1;
     }
 
+    glfwSwapInterval(0);
+
     glfwSetFramebufferSizeCallback(Window, ResizeCallback);
 
     glfwSetCursorPosCallback(Window, MouseCallback);
@@ -87,16 +92,18 @@ int main() {
     Assimp::Importer Importer;
     const aiScene *AssimpScene = Importer.ReadFile(
         "Assets/Models/Crops/Apple_4.fbx",
-        aiProcess_GenNormals |
-        aiProcess_Triangulate |
-        aiProcess_GenBoundingBoxes |
-        aiProcess_SortByPType
+        static_cast<uint32_t>(
+            aiProcess_GenNormals |
+            aiProcess_Triangulate |
+            aiProcess_GenBoundingBoxes |
+            aiProcess_SortByPType
+        )
     );
 
     uint32_t MeshCount = AssimpScene->mNumMeshes;
     uint32_t MaterialCount = AssimpScene->mNumMaterials;
 
-    std::vector<CMesh<SVertex, uint32_t>> Meshes(MeshCount);
+    std::vector<DMesh> Meshes(MeshCount);
     std::vector<glm::vec4> Materials(MaterialCount);
 
     std::vector<SLinkRule> LinkRules = {
@@ -146,14 +153,14 @@ int main() {
     glm::mat4 Projection = glm::perspective(glm::radians(90.0f), 1280.0f / 720.0f, 0.1f, 1000.0f);
     glm::mat4 Model = glm::mat4(1.0f);
 
-    CShader DefaultShader;
-    DefaultShader.Load("Assets/Shaders/Default.vert", EShaderType::Vertex);
-    DefaultShader.Load("Assets/Shaders/Default.frag", EShaderType::Fragment);
+    CPipeline DefaultPipeline;
+    DefaultPipeline.AddStage("Assets/Shaders/Default.vert", EShaderType::Vertex);
+    DefaultPipeline.AddStage("Assets/Shaders/Default.frag", EShaderType::Fragment);
 
-    DefaultShader.Bind();
-    DefaultShader.SetUniform(0, "UBTexture");
-    DefaultShader.SetUniform(Projection, "UProjection");
-    DefaultShader.SetUniform(Model, "UTransform");
+    DefaultPipeline.Bind();
+    DefaultPipeline.SetUniform(0, "UBTexture");
+    DefaultPipeline.SetUniform(Projection, "UProjection");
+    DefaultPipeline.SetUniform(Model, "UTransform");
 
     glEnable(GL_DEPTH_TEST);
 
@@ -161,23 +168,30 @@ int main() {
     glCullFace(GL_BACK);
     glFrontFace(GL_CCW);
 
+    float deltaTime = 0.0f;
+    float lastFrameTime = 0.0f;
+    float currentFrameTime = static_cast<float>(glfwGetTime());
+    deltaTime = currentFrameTime - lastFrameTime;
+    lastFrameTime = currentFrameTime;
     while (!glfwWindowShouldClose(Window)) {
         glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
         if (glfwGetKey(Window, GLFW_KEY_W) == GLFW_PRESS)
-            CameraPosition += CameraSpeed * CameraFront;
+            CameraPosition += CameraSpeed * deltaTime * CameraFront;
         if (glfwGetKey(Window, GLFW_KEY_S) == GLFW_PRESS)
-            CameraPosition -= CameraSpeed * CameraFront;
+            CameraPosition -= CameraSpeed * deltaTime * CameraFront;
         if (glfwGetKey(Window, GLFW_KEY_A) == GLFW_PRESS)
-            CameraPosition -= glm::normalize(glm::cross(CameraFront, CameraUp)) * CameraSpeed;
+            CameraPosition -= glm::normalize(glm::cross(CameraFront, CameraUp)) * CameraSpeed * deltaTime;
         if (glfwGetKey(Window, GLFW_KEY_D) == GLFW_PRESS)
-            CameraPosition += glm::normalize(glm::cross(CameraFront, CameraUp)) * CameraSpeed;
+            CameraPosition += glm::normalize(glm::cross(CameraFront, CameraUp)) * CameraSpeed * deltaTime;
+        if (glfwGetKey(Window, GLFW_KEY_ESCAPE) == GLFW_PRESS)
+            glfwSetWindowShouldClose(Window, true);
 
         glm::mat4 View = glm::lookAt(CameraPosition, CameraPosition + CameraFront, CameraUp);
-        DefaultShader.SetUniform(View, "UView");
+        DefaultPipeline.SetUniform(View, "UView");
 
         for (uint32_t I = 0; I < MeshCount; ++I) {
-            DefaultShader.SetUniform(Materials[I], "UColorDiffuse");
+            DefaultPipeline.SetUniform(Materials[I], "UColorDiffuse");
             Meshes[I].Draw();
         }
 
@@ -185,7 +199,7 @@ int main() {
         glfwPollEvents();
     }
 
-    DefaultShader.Unbind();
+    DefaultPipeline.Unbind();
     glfwTerminate();
     return 0;
 }

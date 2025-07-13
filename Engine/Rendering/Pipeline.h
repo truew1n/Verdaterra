@@ -1,31 +1,42 @@
-#ifndef EN_SHADER_H
-#define EN_SHADER_H
+#ifndef EN_PIPELINE_H
+#define EN_PIPELINE_H
 
 #include <iostream>
 #include <glad/glad.h>
 #include <glm/glm.hpp>
 #include <glm/gtc/type_ptr.hpp>
 
+#include <array>
+
+#include "DeviceBuffer.h"
 #include "Texture.h"
 
-#include "RenderObject.h"
+#define PIPELINE_STAGE_COUNT 5
 
-enum class EShaderType : uint32_t {
+
+enum class EShaderType : uint16_t {
     Vertex = GL_VERTEX_SHADER,
     TessellationControl = GL_TESS_CONTROL_SHADER,
     TessellationEvaluation = GL_TESS_EVALUATION_SHADER,
     Geometry = GL_GEOMETRY_SHADER,
-    Fragment = GL_FRAGMENT_SHADER,
-    Compute = GL_COMPUTE_SHADER
+    Fragment = GL_FRAGMENT_SHADER
 };
 
-class CShader : public CRenderObject {
+
+class CPipeline : public CDeviceBuffer {
 private:
-    const char *MatchShaderTypeString(EShaderType Type);
-public:
-    CShader();
+    std::array<uint32_t, PIPELINE_STAGE_COUNT> Stages;
+
+private:
+    const char *GetShaderTypeString(EShaderType Type);
+    uint8_t GetShaderTypeIndex(EShaderType Type);
     uint32_t Compile(const char *Source, EShaderType Type);
-    uint8_t Load(const char *Filepath, EShaderType Type);
+public:
+    CPipeline();
+
+	void AddStage(const char *Filepath, EShaderType Type);
+    void RemoveStage(EShaderType Type);
+
     virtual void Bind() override;
     virtual void Unbind() override;
 
@@ -52,7 +63,9 @@ public:
     void SetUniform(glm::mat4x2 Value, const char *UniformName);
     void SetUniform(glm::mat4x3 Value, const char *UniformName);
     void SetUniform(glm::mat4 Value, const char *UniformName);
-    ~CShader();
+
+    ~CPipeline();
 };
 
 #endif
+

@@ -3,13 +3,13 @@
 
 #include <glad/glad.h>
 
-#include "RenderObject.h"
+#include "DeviceBuffer.h"
 
 #include <vector>
 
 
 template<typename TIndexType>
-class TElementBuffer : public CRenderObject {
+class TElementBuffer : public CDeviceBuffer {
 public:
     TElementBuffer()
     {
@@ -21,7 +21,7 @@ public:
         glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, MId);
     }
 
-    void Data(std::vector<TIndexType> &Indices, EBufferUsage Usage)
+    void Data(const std::vector<TIndexType> &Indices, EBufferUsage Usage)
     {
         glBufferData(GL_ELEMENT_ARRAY_BUFFER, Indices.size() * sizeof(TIndexType), Indices.data(), static_cast<uint32_t>(Usage));
     }
