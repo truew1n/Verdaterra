@@ -102,11 +102,12 @@
     <ClCompile>
       <WarningLevel>Level3</WarningLevel>
       <SDLCheck>true</SDLCheck>
-      <PreprocessorDefinitions>_DEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <PreprocessorDefinitions>_DEBUG;_CONSOLE;_CRT_SECURE_NO_WARNINGS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
-      <AdditionalIncludeDirectories>$(SolutionDir)Lib\assimp-5.4.3\include;$(SolutionDir)Lib\glfw-3.4.bin.WIN64\include;$(SolutionDir)Lib\glad\include;$(SolutionDir)Lib\glm-1.0.1;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>$(SolutionDir)Lib\assimp\include;$(SolutionDir)Lib\glfw-3.4.bin.WIN64\include;$(SolutionDir)Lib\glad\include;$(SolutionDir)Lib\glm-1.0.1;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <RuntimeLibrary>MultiThreadedDebugDLL</RuntimeLibrary>
       <FunctionLevelLinking>true</FunctionLevelLinking>
+      <LanguageStandard>stdcpp20</LanguageStandard>
     </ClCompile>
     <Link>
       <SubSystem>Console</SubSystem>
@@ -116,7 +117,7 @@
       <AdditionalDependencies>opengl32.lib;glfw3.lib;assimp-vc143-mt.lib</AdditionalDependencies>
     </Lib>
     <Lib>
-      <AdditionalLibraryDirectories>$(SolutionDir)Lib\assimp-5.4.3\lib;$(SolutionDir)Lib\glfw-3.4.bin.WIN64\lib-vc2022;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
+      <AdditionalLibraryDirectories>$(SolutionDir)Lib\assimp\lib;$(SolutionDir)Lib\glfw-3.4.bin.WIN64\lib-vc2022;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
     </Lib>
     <ProjectReference>
       <LinkLibraryDependencies>true</LinkLibraryDependencies>
@@ -128,7 +129,7 @@
       <FunctionLevelLinking>true</FunctionLevelLinking>
       <IntrinsicFunctions>true</IntrinsicFunctions>
       <SDLCheck>true</SDLCheck>
-      <PreprocessorDefinitions>NDEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <PreprocessorDefinitions>NDEBUG;_CONSOLE;_CRT_SECURE_NO_WARNINGS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
       <AdditionalIncludeDirectories>$(SolutionDir)Lib\assimp\include;$(SolutionDir)Lib\glfw-3.4.bin.WIN64\include;$(SolutionDir)Lib\glad\include;$(SolutionDir)Lib\glm-1.0.1;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <RuntimeLibrary>MultiThreadedDLL</RuntimeLibrary>
@@ -151,21 +152,19 @@
     </ProjectReference>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClInclude Include="Utils\Logger.h" />
     <ClInclude Include="Rendering\Pipeline.h" />
-    <ClInclude Include="Rendering\ElementBuffer.h" />
     <ClInclude Include="Rendering\Mesh.h" />
     <ClInclude Include="Rendering\DeviceBuffer.h" />
     <ClInclude Include="Rendering\stb_image.h" />
     <ClInclude Include="Rendering\Texture.h" />
     <ClInclude Include="Rendering\VertexArray.h" />
-    <ClInclude Include="Rendering\VertexBuffer.h" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="..\Lib\glad\src\glad.c">
       <AdditionalIncludeDirectories Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">$(SolutionDir)Lib\assimp-5.4.3\include;$(SolutionDir)Lib\glfw-3.4.bin.WIN64\include;$(SolutionDir)Lib\glad\include;$(SolutionDir)Lib\glm-1.0.1;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
     </ClCompile>
     <ClCompile Include="Rendering\Pipeline.cpp" />
-    <ClCompile Include="Rendering\DeviceBuffer.cpp" />
     <ClCompile Include="Rendering\stb_image.cpp" />
     <ClCompile Include="Rendering\Texture.cpp" />
   </ItemGroup>

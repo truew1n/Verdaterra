@@ -3,6 +3,7 @@
 #include "Rendering/Mesh.h"
 #include "Rendering/Pipeline.h"
 #include "Rendering/Texture.h"
+#include "Utils/Logger.h"
 
 #include <assimp/Importer.hpp>
 #include <assimp/scene.h>
@@ -60,16 +61,23 @@ inline void ResizeCallback(GLFWwindow *Window, int32_t FramebufferWidth, int32_t
 }
 
 int main() {
+    CConsoleLogger ConsoleOut;
+    CLogger::GetInstance().AddOutput(&ConsoleOut);
+    CLogger::GetInstance().SetLevel(ELogLevel::Debug);
+
     if (!glfwInit()) return -1;
+    LOG_INFO("Hello World!");
 
     glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 4);
     glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 6);
     glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
 
     GLFWmonitor *Monitor = glfwGetPrimaryMonitor();
-    const GLFWvidmode *Mode = glfwGetVideoMode(Monitor);
+    const GLFWvidmode *VideoMode = glfwGetVideoMode(Monitor);
 
-    GLFWwindow *Window = glfwCreateWindow(Mode->width, Mode->height, "Verdaterra", Monitor, NULL);
+    //GLFWwindow *Window = glfwCreateWindow(Mode->width, Mode->height, "Verdaterra", Monitor, NULL);
+
+    GLFWwindow *Window = glfwCreateWindow(1280, 720, "Verdaterra", NULL, NULL);
 
     if (!Window) {
         glfwTerminate();
@@ -146,7 +154,7 @@ int main() {
         aiColor4D DiffuseColor;
         AssimpMaterial->Get(AI_MATKEY_COLOR_DIFFUSE, DiffuseColor);
 
-        Meshes[I].Data(Vertices, Indices, LinkRules, EBufferUsage::StaticDraw);
+        Meshes[I].Data(Vertices, Indices, LinkRules, EBufferMode::StaticDraw);
         Materials[I] = glm::vec4(DiffuseColor.r, DiffuseColor.g, DiffuseColor.b, DiffuseColor.a);
     }
 
@@ -168,11 +176,14 @@ int main() {
     glCullFace(GL_BACK);
     glFrontFace(GL_CCW);
 
+    glm::vec4 Empty(1.0);
+
     float deltaTime = 0.0f;
     float lastFrameTime = 0.0f;
     float currentFrameTime = static_cast<float>(glfwGetTime());
     deltaTime = currentFrameTime - lastFrameTime;
     lastFrameTime = currentFrameTime;
+    
     while (!glfwWindowShouldClose(Window)) {
         glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
@@ -189,7 +200,7 @@ int main() {
 
         glm::mat4 View = glm::lookAt(CameraPosition, CameraPosition + CameraFront, CameraUp);
         DefaultPipeline.SetUniform(View, "UView");
-
+        
         for (uint32_t I = 0; I < MeshCount; ++I) {
             DefaultPipeline.SetUniform(Materials[I], "UColorDiffuse");
             Meshes[I].Draw();

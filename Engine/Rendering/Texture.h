@@ -91,21 +91,23 @@ enum class ETextureType : int8_t {
 };
 
 
-class CTexture : public CDeviceBuffer {
+class CTexture {
 private:
 	static uint32_t MMaxUnit;
+
+	uint32_t MId;
 
 	ETextureType MType;
 	uint32_t MUnit;
 
 	int32_t MChannels;
 public:
-	CTexture() : MType(ETextureType::None), MUnit(0), MChannels(0) {};
+	CTexture() : MId(0), MType(ETextureType::None), MUnit(0), MChannels(0) {};
 	CTexture(const char *NTexturePath);
 
 	void SetTextureParameter(ETextureParameter Type, ETextureParameterValue Value);
-	virtual void Bind() override;
-	virtual void Unbind() override;
+	void Bind();
+	void Unbind();
 	~CTexture();
 
 	ETextureType GetType() const { return MType; }
