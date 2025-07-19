@@ -1,9 +1,10 @@
 #ifndef EN_MESH_H
 #define EN_MESH_H
 
-#include "VertexArray.h"
-
 #include <vector>
+
+#include "RenderObject.h"
+#include "VertexArray.h"
 
 
 typedef struct SLinkRule {
@@ -38,56 +39,57 @@ typedef struct SLinkRule {
 
 
 template<typename TVertexType, typename TIndexType>
-class TMesh {
+class TMesh : public CRenderObject {
 private:
     EBufferMode MMode;
     uint32_t MPolygonCount;
     
-    TVertexArray<TVertexType> *MVertexArray;
-    TDeviceBuffer<TVertexType> *MVertexBuffer;
-    TDeviceBuffer<TIndexType> *MElementBuffer;
+    TVertexArray<TVertexType> MVertexArray;
+    TDeviceBuffer<TVertexType> MVertexBuffer;
+    TDeviceBuffer<TIndexType> MElementBuffer;
 
 public:
-    TMesh()
+    inline virtual void Create() override
     {
         MMode = EBufferMode::None;
         MPolygonCount = 0;
-        MVertexArray = nullptr;
-        MVertexBuffer = nullptr;
-        MElementBuffer = nullptr;
+        MVertexArray.Create();
+        MVertexBuffer.Create();
+        MElementBuffer.Create();
     }
 
-    void Data(const std::vector<TVertexType> &Vertices, const std::vector<TIndexType> &Indices, const std::vector<SLinkRule> &LinkRules, EBufferMode Mode)
+    inline virtual void Bind() override
     {
-        MVertexArray = new TVertexArray<TVertexType>();
-        MVertexBuffer = new TDeviceBuffer<TVertexType>();
-        MElementBuffer = new TDeviceBuffer<TIndexType>();
+        MVertexArray.Bind();
+    }
 
-        MVertexBuffer->SetModeAndType(Mode, EBufferType::ArrayBuffer);
-        MElementBuffer->SetModeAndType(Mode, EBufferType::ElementArrayBuffer);
+    void Write(const std::vector<TVertexType> &Vertices, const std::vector<TIndexType> &Indices, const std::vector<SLinkRule> &LinkRules, EBufferMode Mode)
+    {
+        MVertexBuffer.SetModeAndType(Mode, EBufferType::ArrayBuffer);
+        MElementBuffer.SetModeAndType(Mode, EBufferType::ElementArrayBuffer);
 
-        MVertexArray->Bind();
-        MVertexBuffer->Bind();
-        MElementBuffer->Bind();
+        MVertexArray.Bind();
+        MVertexBuffer.Bind();
+        MElementBuffer.Bind();
 
-        MVertexBuffer->Data(Vertices);
-        MElementBuffer->Data(Indices);
+        MVertexBuffer.Write(Vertices);
+        MElementBuffer.Write(Indices);
 
         for (const SLinkRule &LinkRule : LinkRules) {
-            MVertexArray->LinkAttribute(LinkRule.Layout, LinkRule.Count, LinkRule.Type, LinkRule.Normalized, sizeof(TVertexType), LinkRule.Offset);
+            MVertexArray.LinkAttribute(LinkRule.Layout, LinkRule.Count, LinkRule.Type, LinkRule.Normalized, sizeof(TVertexType), LinkRule.Offset);
         }
 
-        MVertexArray->Unbind();
-        MElementBuffer->Unbind();
-        MVertexBuffer->Unbind();
+        MVertexArray.Unbind();
+        MElementBuffer.Unbind();
+        MVertexBuffer.Unbind();
 
         MMode = Mode;
         MPolygonCount = static_cast<uint32_t>(Indices.size());
     }
 
-    void Draw()
+
+    inline virtual void Draw()
     {
-        MVertexArray->Bind();
         glDrawElements(GL_TRIANGLES, MPolygonCount, GL_UNSIGNED_INT, nullptr);
     }
 
@@ -96,11 +98,16 @@ public:
         return MPolygonCount;
     }
 
-	~TMesh()
+    inline virtual void Unbind() override
+    {
+        MVertexArray.Unbind();
+    }
+
+    inline virtual void Destroy() override
 	{
-        if (MVertexArray) delete MVertexArray;
-        if (MVertexBuffer) delete MVertexBuffer;
-        if (MElementBuffer) delete MElementBuffer;
+        MVertexArray.Destroy();
+        MVertexBuffer.Destroy();
+        MElementBuffer.Destroy();
 	}
 };
 

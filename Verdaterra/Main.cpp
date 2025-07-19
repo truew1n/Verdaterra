@@ -21,10 +21,11 @@ float LastX = 1280.0f / 2.0f;
 float LastY = 720.0f / 2.0f;
 bool FirstMouse = true;
 
-float CameraSpeed = 0.05f;
+float CameraSpeed = 0.005f;
 float MouseSensitivity = 0.1f;
 
-void MouseCallback(GLFWwindow *Window, double X, double Y) {
+inline void MouseCallback(GLFWwindow *Window, double X, double Y)
+{
     if (FirstMouse) {
         LastX = static_cast<float>(X);
         LastY = static_cast<float>(Y);
@@ -66,7 +67,6 @@ int main() {
     CLogger::GetInstance().SetLevel(ELogLevel::Debug);
 
     if (!glfwInit()) return -1;
-    LOG_INFO("Hello World!");
 
     glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 4);
     glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 6);
@@ -75,9 +75,7 @@ int main() {
     GLFWmonitor *Monitor = glfwGetPrimaryMonitor();
     const GLFWvidmode *VideoMode = glfwGetVideoMode(Monitor);
 
-    //GLFWwindow *Window = glfwCreateWindow(Mode->width, Mode->height, "Verdaterra", Monitor, NULL);
-
-    GLFWwindow *Window = glfwCreateWindow(1280, 720, "Verdaterra", NULL, NULL);
+    GLFWwindow *Window = glfwCreateWindow(VideoMode->width, VideoMode->height, "Verdaterra", Monitor, NULL);
 
     if (!Window) {
         glfwTerminate();
@@ -85,7 +83,7 @@ int main() {
     }
 
     glfwMakeContextCurrent(Window);
-    if (!gladLoadGLLoader((GLADloadproc)glfwGetProcAddress)) {
+    if (!gladLoadGLLoader(reinterpret_cast<GLADloadproc>(glfwGetProcAddress))) {
         std::cerr << "Failed to initialize GLAD" << std::endl;
         return -1;
     }
@@ -154,7 +152,8 @@ int main() {
         aiColor4D DiffuseColor;
         AssimpMaterial->Get(AI_MATKEY_COLOR_DIFFUSE, DiffuseColor);
 
-        Meshes[I].Data(Vertices, Indices, LinkRules, EBufferMode::StaticDraw);
+        Meshes[I].Create();
+        Meshes[I].Write(Vertices, Indices, LinkRules, EBufferMode::StaticDraw);
         Materials[I] = glm::vec4(DiffuseColor.r, DiffuseColor.g, DiffuseColor.b, DiffuseColor.a);
     }
 
@@ -162,6 +161,7 @@ int main() {
     glm::mat4 Model = glm::mat4(1.0f);
 
     CPipeline DefaultPipeline;
+    DefaultPipeline.Create();
     DefaultPipeline.AddStage("Assets/Shaders/Default.vert", EShaderType::Vertex);
     DefaultPipeline.AddStage("Assets/Shaders/Default.frag", EShaderType::Fragment);
 
@@ -175,8 +175,6 @@ int main() {
     glEnable(GL_CULL_FACE);
     glCullFace(GL_BACK);
     glFrontFace(GL_CCW);
-
-    glm::vec4 Empty(1.0);
 
     float deltaTime = 0.0f;
     float lastFrameTime = 0.0f;
@@ -203,6 +201,7 @@ int main() {
         
         for (uint32_t I = 0; I < MeshCount; ++I) {
             DefaultPipeline.SetUniform(Materials[I], "UColorDiffuse");
+            Meshes[I].Bind();
             Meshes[I].Draw();
         }
 
@@ -211,6 +210,10 @@ int main() {
     }
 
     DefaultPipeline.Unbind();
+    DefaultPipeline.Destroy();
+    for (TMesh<SVertex, uint32_t> &Mesh : Meshes) {
+        Mesh.Destroy();
+    }
     glfwTerminate();
     return 0;
 }

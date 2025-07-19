@@ -39,12 +39,13 @@ uint32_t CPipeline::Compile(const char *Source, EShaderType Type)
 
     int32_t Result;
     glGetShaderiv(ShaderId, GL_COMPILE_STATUS, &Result);
+
     if (!Result) {
         int32_t Length;
         glGetShaderiv(ShaderId, GL_INFO_LOG_LENGTH, &Length);
         char *Message = new char[Length];
         glGetShaderInfoLog(ShaderId, Length, &Length, Message);
-        LOG_WARNING_FORMAT(
+        LOG_ERROR_FORMAT(
             "Failed to compile %s shader!\n%s\n",
             GetShaderTypeString(Type),
             Message
@@ -57,7 +58,7 @@ uint32_t CPipeline::Compile(const char *Source, EShaderType Type)
     return ShaderId;
 }
 
-CPipeline::CPipeline()
+void CPipeline::Create()
 {
     MId = glCreateProgram();
     Stages.fill(0);
@@ -252,7 +253,7 @@ void CPipeline::SetUniform(glm::mat4 &Value, const char *UniformName)
     glUniformMatrix4fv(UniformLocation, 1, GL_FALSE, glm::value_ptr(Value));
 }
 
-CPipeline::~CPipeline()
+void CPipeline::Destroy()
 {
     for (uint32_t ShaderId : Stages) {
         if (!ShaderId) continue;

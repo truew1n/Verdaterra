@@ -34,16 +34,15 @@ enum class EVertexComponentType : uint32_t {
 
 
 template<typename T>
-class TVertexArray {
-private:
-	uint32_t MId;
+class TVertexArray : public CRenderObject, public CHandle {
 public:
-	TVertexArray()
+	inline virtual void Create() override
     {
         glGenVertexArrays(1, &MId);
-    }
+    
+	}
 
-	void Bind()
+	inline virtual void Bind() override
 	{
 		glBindVertexArray(MId);
 	}
@@ -60,7 +59,7 @@ public:
         glBindVertexArray(0);
     }
 
-	~TVertexArray()
+	inline virtual void Destroy() override
     {
         glDeleteVertexArrays(1, &MId);
     }

@@ -1,21 +1,32 @@
 #include "Texture.h"
 #include <iostream>
 
-uint32_t CTexture::MMaxUnit = 0;
+#include "../Utils/Logger.h"
 
-CTexture::CTexture(const char *NTexturePath)
+void CTexture::Create()
 {
-	MType = ETextureType::None;
-	MUnit = 0;
+	MUsage = ETextureUsage::None;
+	MUnit = ++MMaxUnit;
+
+	glGenTextures(1, &MId);
+	glActiveTexture(GL_TEXTURE0 + MUnit);
+}
+
+void CTexture::Create(const char *Filepath)
+{
+	MUsage = ETextureUsage::None;
 	int32_t TextureWidth, TextureHeight;
 	stbi_set_flip_vertically_on_load(true);
-	uint8_t *TextureData = stbi_load(NTexturePath, &TextureWidth, &TextureHeight, &MChannels, 0);
+	uint8_t *TextureData = stbi_load(Filepath, &TextureWidth, &TextureHeight, &MChannels, 0);
 
 	if (!TextureData) {
-		std::cerr << "CTexture :: Failed to load texture: " << NTexturePath << "\n";
+		LOG_ERROR_FORMAT(
+			"Failed to load texture: %s",
+			Filepath
+		);
 		return;
 	}
-
+	
 	MUnit = ++MMaxUnit;
 
 	glGenTextures(1, &MId);
@@ -64,7 +75,7 @@ void CTexture::Unbind()
 	glBindTexture(GL_TEXTURE_2D, 0);
 }
 
-CTexture::~CTexture()
+void CTexture::Destroy()
 {
 	glDeleteTextures(1, &MId);
 }

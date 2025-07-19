@@ -61,8 +61,7 @@ enum class ETextureParameterValue : int32_t {
 };
 
 
-enum class ETextureType : int8_t {
-	None = 0,
+enum class ETextureUsage : int8_t {
 	Diffuse = 1,
 	Specular = 2,
 	Ambient = 3,
@@ -87,35 +86,34 @@ enum class ETextureType : int8_t {
 	MayaBase = 22,
 	MayaSpecular = 23,
 	MayaSpecularColor = 24,
-	MayaSpecularRoughness = 25
+	MayaSpecularRoughness = 25,
+	None = 0
 };
 
 
-class CTexture {
+class CTexture : public CRenderObject, public CHandle {
 private:
-	static uint32_t MMaxUnit;
+	inline static uint32_t MMaxUnit = 0;
 
-	uint32_t MId;
-
-	ETextureType MType;
+	ETextureUsage MUsage;
 	uint32_t MUnit;
 
 	int32_t MChannels;
 public:
-	CTexture() : MId(0), MType(ETextureType::None), MUnit(0), MChannels(0) {};
-	CTexture(const char *NTexturePath);
+	virtual void Create() override;
+	virtual void Create(const char *Filepath);
+	virtual void Bind() override;
 
 	void SetTextureParameter(ETextureParameter Type, ETextureParameterValue Value);
-	void Bind();
-	void Unbind();
-	~CTexture();
-
-	ETextureType GetType() const { return MType; }
-	void SetType(ETextureType Type) { MType = Type; }
+	
+	ETextureUsage GetUsage() const { return MUsage; }
+	void SetUsage(ETextureUsage Type) { MUsage = Type; }
 
 	uint32_t GetUnit() const { return MUnit; }
-
 	uint32_t GetChannels() const { return MChannels; }
+
+	virtual void Unbind() override;
+	virtual void Destroy() override;
 };
 
 #endif

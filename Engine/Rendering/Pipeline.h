@@ -8,6 +8,7 @@
 
 #include <array>
 
+#include "Handle.h"
 #include "DeviceBuffer.h"
 #include "Texture.h"
 
@@ -24,9 +25,16 @@ enum class EShaderType : uint16_t {
 };
 
 
-class CPipeline {
+typedef struct SPipelineState {
+    uint8_t DepthTest = 1;
+    uint8_t CullFace = 1;
+    uint8_t CullBackFace = 1;
+    uint8_t CullFaceWindingOrder = 1;
+} SPipelineState;
+
+
+class CPipeline : public CRenderObject, public CHandle {
 private:
-    uint32_t MId;
     std::array<uint32_t, PIPELINE_STAGE_COUNT> Stages;
 
 private:
@@ -34,13 +42,11 @@ private:
     uint8_t GetShaderTypeIndex(EShaderType Type);
     uint32_t Compile(const char *Source, EShaderType Type);
 public:
-    CPipeline();
+    virtual void Create() override;
+    virtual void Bind() override;
 
-	void AddStage(const char *Filepath, EShaderType Type);
+    void AddStage(const char *Filepath, EShaderType Type);
     void RemoveStage(EShaderType Type);
-
-    void Bind();
-    void Unbind();
 
     int32_t GetUniformLocation(const char *UniformName);
     void SetUniform(CTexture *Value, const char *UniformName);
@@ -66,7 +72,8 @@ public:
     void SetUniform(glm::mat4x3 &Value, const char *UniformName);
     void SetUniform(glm::mat4 &Value, const char *UniformName);
 
-    ~CPipeline();
+    virtual void Unbind() override;
+    virtual void Destroy() override;
 };
 
 #endif

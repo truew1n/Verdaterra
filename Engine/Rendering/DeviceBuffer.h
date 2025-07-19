@@ -1,12 +1,13 @@
-#ifndef EN_RENDER_OBJECT_H
-#define EN_RENDER_OBJECT_H
+#ifndef EN_DEVICE_BUFFER_H
+#define EN_DEVICE_BUFFER_H
+
+#include <iostream>
+#include <vector>
 
 #include "glad/glad.h"
-#include <iostream>
 
-#include <stdint.h>
-
-#include <vector>
+#include "RenderObject.h"
+#include "Handle.h"
 
 enum class EBufferMode : uint32_t {
     StreamDraw = GL_STREAM_DRAW,
@@ -42,70 +43,59 @@ enum class EBufferType : uint32_t {
 };
 
 template<typename TElementType>
-class TDeviceBuffer {
+class TDeviceBuffer : public CRenderObject, public CHandle {
 protected:
-    uint32_t MId;
     EBufferMode MMode;
     EBufferType MType;
 public:
-    TDeviceBuffer() 
+    inline virtual void Create() override
     {
         MMode = EBufferMode::None;
         MType = EBufferType::None;
         glGenBuffers(1, &MId);
     }
 
-    virtual void Bind()
+    inline virtual void Bind() override
     {
         glBindBuffer(static_cast<uint32_t>(MType), MId);
     }
 
-    virtual void Data(const std::vector<TElementType> &Elements)
+    inline virtual void Write(const std::vector<TElementType> &Elements)
     {
         glBufferData(static_cast<uint32_t>(MType), Elements.size() * sizeof(TElementType), Elements.data(), static_cast<uint32_t>(MMode));
     }
 
-    virtual void Unbind()
+    inline virtual void Unbind() override
     {
         glBindBuffer(static_cast<uint32_t>(MType), 0);
     }
 
-    ~TDeviceBuffer()
+    inline virtual void Destroy() override
     {
         glDeleteBuffers(1, &MId);
     }
 
-    uint32_t GetId() const
-    {
-        return MId;
-    }
-
-    uint32_t SetId(uint32_t Id)
-    {
-        MId = Id;
-    }
-
-    EBufferMode GetMode() const
+    inline EBufferMode GetMode() const
     {
         return MMode;
     }
 
-    void SetMode(EBufferMode Mode)
+    inline void SetMode(EBufferMode Mode)
     {
         MMode = Mode;
     }
 
-    EBufferType GetType() const
+    inline EBufferType GetType() const
     {
         return MType;
     }
 
-    void SetType(EBufferType Type)
+    inline void SetType(EBufferType Type)
     {
         MType = Type;
     }
 
-    void SetModeAndType(EBufferMode Mode, EBufferType Type)
+    inline void SetModeAndType(EBufferMode Mode, EBufferType Type)
     {
         MMode = Mode;
         MType = Type;
