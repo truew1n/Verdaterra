@@ -12,10 +12,6 @@ typedef struct SVertex {
 	glm::vec3 MPosition;
 	glm::vec3 MNormal;
 	glm::vec2 MUV;
-
-	SVertex() : MPosition(0.0f), MNormal(0.0f), MUV(0.0f) {}
-	SVertex(glm::vec3 NPosition, glm::vec2 NUV) : MPosition(NPosition), MNormal(0.0f), MUV(NUV) {}
-	SVertex(glm::vec3 NPosition, glm::vec3 NNormal, glm::vec2 IUV) : MPosition(NPosition), MNormal(NNormal), MUV(IUV) {}
 } SVertex;
 
 

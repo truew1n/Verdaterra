@@ -13,28 +13,6 @@ typedef struct SLinkRule {
     EVertexComponentType Type;
     uint8_t Normalized;
     void *Offset;
-
-    SLinkRule() :
-        Layout(0),
-        Count(0),
-        Type(EVertexComponentType::None),
-        Normalized(false),
-        Offset(nullptr)
-    { }
-
-    SLinkRule(
-        uint32_t NLayout,
-        uint32_t NCount,
-        EVertexComponentType NType,
-        uint8_t NNormalized,
-        void *NOffset
-    ) :
-        Layout(NLayout),
-        Count(NCount),
-        Type(NType),
-        Normalized(NNormalized),
-        Offset(NOffset)
-    { }
 } SLinkRule;
 
 

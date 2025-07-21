@@ -3,7 +3,7 @@
 #include <fstream>
 #include <filesystem>
 
-#include "../Utils/Logger.h"
+#include "Utils/Logger.h"
 
 const char *CPipeline::GetShaderTypeString(EShaderType Type)
 {
@@ -26,8 +26,8 @@ uint8_t CPipeline::GetShaderTypeIndex(EShaderType Type)
         case EShaderType::TessellationEvaluation:           return 2;
         case EShaderType::Geometry:                         return 3;
         case EShaderType::Fragment:                         return 4;
-        case EShaderType::None:                             return PIPELINE_STAGE_COUNT + 1;
-        default:                                            return PIPELINE_STAGE_COUNT + 1;
+        case EShaderType::None:                             return EN_PIPELINE_STAGE_COUNT;
+        default:                                            return EN_PIPELINE_STAGE_COUNT;
     }
 }
 
@@ -61,12 +61,20 @@ uint32_t CPipeline::Compile(const char *Source, EShaderType Type)
 void CPipeline::Create()
 {
     MId = glCreateProgram();
-    Stages.fill(0);
+    Stages = { };
 }
 
 void CPipeline::Bind()
 {
     glUseProgram(MId);
+
+    // Just for now
+    glEnable(GL_DEPTH_TEST);
+
+    glEnable(GL_CULL_FACE);
+    glCullFace(GL_BACK);
+    glFrontFace(GL_CCW);
+
 }
 
 void CPipeline::Unbind()
@@ -77,7 +85,7 @@ void CPipeline::Unbind()
 void CPipeline::AddStage(const char *Filepath, EShaderType Type)
 {
     uint32_t ShaderIndex = GetShaderTypeIndex(Type);
-    if (ShaderIndex == PIPELINE_STAGE_COUNT) {
+    if (ShaderIndex >= EN_PIPELINE_STAGE_COUNT) {
         return;
     }
 
@@ -87,7 +95,7 @@ void CPipeline::AddStage(const char *Filepath, EShaderType Type)
 
     uint32_t ShaderId = Compile(Content.c_str(), Type);
 
-    if (!ShaderId) {
+    if (ShaderId == EN_HANDLE_INVALID_ID) {
         return;
     }
 
@@ -95,25 +103,25 @@ void CPipeline::AddStage(const char *Filepath, EShaderType Type)
     glLinkProgram(MId);
     glValidateProgram(MId);
 
-    Stages[ShaderIndex] = ShaderId;
+    Stages[ShaderIndex].SetId(ShaderId);
 }
 
 void CPipeline::RemoveStage(EShaderType Type)
 {
     uint32_t ShaderIndex = GetShaderTypeIndex(Type);
-    if (ShaderIndex == PIPELINE_STAGE_COUNT) {
+    if (ShaderIndex >= EN_PIPELINE_STAGE_COUNT) {
         return;
     }
 
-    uint32_t ShaderId = Stages[ShaderIndex];
-    if (!ShaderId) {
+    uint32_t ShaderId = Stages[ShaderIndex].GetId();
+    if (ShaderId == EN_HANDLE_INVALID_ID) {
         return;
     }
 
     glDetachShader(MId, ShaderId);
     glDeleteShader(ShaderId);
 
-    Stages[ShaderIndex] = 0;
+    Stages[ShaderIndex].SetId(0);
 }
 
 int32_t CPipeline::GetUniformLocation(const char *UniformName)
@@ -121,11 +129,11 @@ int32_t CPipeline::GetUniformLocation(const char *UniformName)
     return glGetUniformLocation(MId, UniformName);
 }
 
-void CPipeline::SetUniform(CTexture *Value, const char *UniformName)
+void CPipeline::SetUniform(CTexture &Value, const char *UniformName)
 {
     int32_t UniformLocation = GetUniformLocation(UniformName);
 
-    glUniform1i(UniformLocation, Value->GetUnit());
+    glUniform1i(UniformLocation, Value.GetUnit());
 }
 
 void CPipeline::SetUniform(float Value, const char *UniformName) {
@@ -255,11 +263,15 @@ void CPipeline::SetUniform(glm::mat4 &Value, const char *UniformName)
 
 void CPipeline::Destroy()
 {
-    for (uint32_t ShaderId : Stages) {
-        if (!ShaderId) continue;
+    uint32_t ShaderId = 0;
+    for (CHandle ShaderHandle : Stages) {
+        ShaderId = ShaderHandle.GetId();
+        if (ShaderId == EN_HANDLE_INVALID_ID) continue;
 
         glDetachShader(MId, ShaderId);
         glDeleteShader(ShaderId);
+
+        ShaderHandle.SetId(0);
     }
     
     glDeleteProgram(MId);

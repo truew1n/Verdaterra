@@ -3,6 +3,8 @@
 
 #include <iostream>
 
+#define EN_HANDLE_INVALID_ID 0
+
 class CHandle {
 protected:
 	uint32_t MId;
@@ -12,7 +14,7 @@ public:
         return MId;
     }
 
-    inline uint32_t SetId(uint32_t Id)
+    inline void SetId(uint32_t Id)
     {
         MId = Id;
     }

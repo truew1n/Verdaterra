@@ -12,7 +12,7 @@
 
 // ------------------- Camera Globals -------------------
 glm::vec3 CameraPosition = glm::vec3(0.0f, 0.0f, 10.0f);
-glm::vec3 CameraFront = glm::vec3(0.0f, 0.0f, -1.0f);
+glm::vec3 CameraForward = glm::vec3(0.0f, 0.0f, -1.0f);
 glm::vec3 CameraUp = glm::vec3(0.0f, 1.0f, 0.0f);
 
 float Yaw = -90.0f;
@@ -33,7 +33,7 @@ inline void MouseCallback(GLFWwindow *Window, double X, double Y)
     }
 
     float xoffset = static_cast<float>(X - LastX);
-    float yoffset = static_cast<float>(LastY - Y); // reversed: y-coordinates go bottom to top
+    float yoffset = static_cast<float>(LastY - Y);
 
     LastX = static_cast<float>(X);
     LastY = static_cast<float>(Y);
@@ -49,11 +49,11 @@ inline void MouseCallback(GLFWwindow *Window, double X, double Y)
     if (Pitch < -89.0f)
         Pitch = -89.0f;
 
-    glm::vec3 front;
-    front.x = cos(glm::radians(Yaw)) * cos(glm::radians(Pitch));
-    front.y = sin(glm::radians(Pitch));
-    front.z = sin(glm::radians(Yaw)) * cos(glm::radians(Pitch));
-    CameraFront = glm::normalize(front);
+    glm::vec3 Forward;
+    Forward.x = cos(glm::radians(Yaw)) * cos(glm::radians(Pitch));
+    Forward.y = sin(glm::radians(Pitch));
+    Forward.z = sin(glm::radians(Yaw)) * cos(glm::radians(Pitch));
+    CameraForward = glm::normalize(Forward);
 }
 
 inline void ResizeCallback(GLFWwindow *Window, int32_t FramebufferWidth, int32_t FramebufferHeight)
@@ -157,8 +157,27 @@ int main() {
         Materials[I] = glm::vec4(DiffuseColor.r, DiffuseColor.g, DiffuseColor.b, DiffuseColor.a);
     }
 
+    DMesh Plane;
+    glm::vec4 PlaneColor = glm::vec4(0.0, 0.3, 0.0, 1.0);
+    std::vector<SVertex> PlaneVertices = {
+        { glm::vec3(-0.5f, 0.0f, -0.5f), glm::vec3(0, 1, 0), glm::vec2(0.0f, 0.0f) },
+        { glm::vec3(0.5f, 0.0f, -0.5f), glm::vec3(0, 1, 0), glm::vec2(1.0f, 0.0f) },
+        { glm::vec3(0.5f, 0.0f,  0.5f), glm::vec3(0, 1, 0), glm::vec2(1.0f, 1.0f) },
+        { glm::vec3(-0.5f, 0.0f,  0.5f), glm::vec3(0, 1, 0), glm::vec2(0.0f, 1.0f) }
+    };
+
+    std::vector<uint32_t> PlaneIndices = {
+        2, 1, 0,
+        3, 2, 0
+    };
+
+    Plane.Create();
+    Plane.Write(PlaneVertices, PlaneIndices, LinkRules, EBufferMode::StaticDraw);
+    
+
     glm::mat4 Projection = glm::perspective(glm::radians(90.0f), 1280.0f / 720.0f, 0.1f, 1000.0f);
-    glm::mat4 Model = glm::mat4(1.0f);
+    glm::mat4 Model1 = glm::rotate(glm::mat4(1.0f), glm::radians(-90.0f), glm::vec3(1.0f, 0.0f, 0.0f));
+    glm::mat4 Model2 = glm::scale(glm::mat4(1.0f), glm::vec3(10.0f, 10.0f, 10.0f));
 
     CPipeline DefaultPipeline;
     DefaultPipeline.Create();
@@ -168,13 +187,7 @@ int main() {
     DefaultPipeline.Bind();
     DefaultPipeline.SetUniform(0, "UBTexture");
     DefaultPipeline.SetUniform(Projection, "UProjection");
-    DefaultPipeline.SetUniform(Model, "UTransform");
-
-    glEnable(GL_DEPTH_TEST);
-
-    glEnable(GL_CULL_FACE);
-    glCullFace(GL_BACK);
-    glFrontFace(GL_CCW);
+    DefaultPipeline.SetUniform(Model1, "UTransform");
 
     float deltaTime = 0.0f;
     float lastFrameTime = 0.0f;
@@ -186,24 +199,30 @@ int main() {
         glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
         if (glfwGetKey(Window, GLFW_KEY_W) == GLFW_PRESS)
-            CameraPosition += CameraSpeed * deltaTime * CameraFront;
+            CameraPosition += CameraSpeed * deltaTime * CameraForward;
         if (glfwGetKey(Window, GLFW_KEY_S) == GLFW_PRESS)
-            CameraPosition -= CameraSpeed * deltaTime * CameraFront;
+            CameraPosition -= CameraSpeed * deltaTime * CameraForward;
         if (glfwGetKey(Window, GLFW_KEY_A) == GLFW_PRESS)
-            CameraPosition -= glm::normalize(glm::cross(CameraFront, CameraUp)) * CameraSpeed * deltaTime;
+            CameraPosition -= glm::normalize(glm::cross(CameraForward, CameraUp)) * CameraSpeed * deltaTime;
         if (glfwGetKey(Window, GLFW_KEY_D) == GLFW_PRESS)
-            CameraPosition += glm::normalize(glm::cross(CameraFront, CameraUp)) * CameraSpeed * deltaTime;
+            CameraPosition += glm::normalize(glm::cross(CameraForward, CameraUp)) * CameraSpeed * deltaTime;
         if (glfwGetKey(Window, GLFW_KEY_ESCAPE) == GLFW_PRESS)
             glfwSetWindowShouldClose(Window, true);
 
-        glm::mat4 View = glm::lookAt(CameraPosition, CameraPosition + CameraFront, CameraUp);
+        glm::mat4 View = glm::lookAt(CameraPosition, CameraPosition + CameraForward, CameraUp);
         DefaultPipeline.SetUniform(View, "UView");
         
+        DefaultPipeline.SetUniform(Model1, "UTransform");
         for (uint32_t I = 0; I < MeshCount; ++I) {
             DefaultPipeline.SetUniform(Materials[I], "UColorDiffuse");
             Meshes[I].Bind();
             Meshes[I].Draw();
         }
+
+        DefaultPipeline.SetUniform(Model2, "UTransform");
+        DefaultPipeline.SetUniform(PlaneColor, "UColorDiffuse");
+        Plane.Bind();
+        Plane.Draw();
 
         glfwSwapBuffers(Window);
         glfwPollEvents();
@@ -214,6 +233,7 @@ int main() {
     for (TMesh<SVertex, uint32_t> &Mesh : Meshes) {
         Mesh.Destroy();
     }
+    Plane.Destroy();
     glfwTerminate();
     return 0;
 }

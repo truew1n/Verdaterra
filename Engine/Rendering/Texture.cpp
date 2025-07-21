@@ -1,15 +1,22 @@
 #include "Texture.h"
 #include <iostream>
 
-#include "../Utils/Logger.h"
+#include "Utils/Logger.h"
+
+uint32_t CTexture::GetNextUnit()
+{
+	uint32_t MaxUnit;
+	glGetIntegerv(GL_MAX_COMBINED_TEXTURE_IMAGE_UNITS, (GLint*) &MaxUnit);
+	MMaxUnit = (MMaxUnit + 1) % MaxUnit;
+	return MMaxUnit;
+}
 
 void CTexture::Create()
 {
 	MUsage = ETextureUsage::None;
-	MUnit = ++MMaxUnit;
+	MUnit = GetNextUnit();
 
 	glGenTextures(1, &MId);
-	glActiveTexture(GL_TEXTURE0 + MUnit);
 }
 
 void CTexture::Create(const char *Filepath)
@@ -27,7 +34,7 @@ void CTexture::Create(const char *Filepath)
 		return;
 	}
 	
-	MUnit = ++MMaxUnit;
+	MUnit = GetNextUnit();
 
 	glGenTextures(1, &MId);
 	glActiveTexture(GL_TEXTURE0 + MUnit);
@@ -62,6 +69,26 @@ void CTexture::Create(const char *Filepath)
 void CTexture::SetTextureParameter(ETextureParameter Type, ETextureParameterValue Value)
 {
 	glTexParameteri(GL_TEXTURE_2D, static_cast<GLenum>(Type), static_cast<GLint>(Value));
+}
+
+ETextureUsage CTexture::GetUsage() const
+{
+	return MUsage;
+}
+
+void CTexture::SetUsage(ETextureUsage Usage)
+{
+	MUsage = Usage;
+}
+
+uint32_t CTexture::GetUnit() const
+{
+	return MUnit;
+}
+
+uint32_t CTexture::GetChannels() const
+{
+	return MChannels;
 }
 
 void CTexture::Bind()

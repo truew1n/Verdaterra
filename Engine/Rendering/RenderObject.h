@@ -1,7 +1,6 @@
 #ifndef EN_RENDER_OBJECT_H
 #define EN_RENDER_OBJECT_H
 
-#include "Handle.h"
 
 class CRenderObject {
 public:

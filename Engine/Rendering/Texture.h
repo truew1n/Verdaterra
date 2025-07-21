@@ -99,6 +99,8 @@ private:
 	uint32_t MUnit;
 
 	int32_t MChannels;
+private:
+	uint32_t GetNextUnit();
 public:
 	virtual void Create() override;
 	virtual void Create(const char *Filepath);
@@ -106,11 +108,10 @@ public:
 
 	void SetTextureParameter(ETextureParameter Type, ETextureParameterValue Value);
 	
-	ETextureUsage GetUsage() const { return MUsage; }
-	void SetUsage(ETextureUsage Type) { MUsage = Type; }
-
-	uint32_t GetUnit() const { return MUnit; }
-	uint32_t GetChannels() const { return MChannels; }
+	ETextureUsage GetUsage() const;
+	void SetUsage(ETextureUsage Usage);
+	uint32_t GetUnit() const;
+	uint32_t GetChannels() const;
 
 	virtual void Unbind() override;
 	virtual void Destroy() override;

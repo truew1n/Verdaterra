@@ -9,6 +9,7 @@
 #include "RenderObject.h"
 #include "Handle.h"
 
+
 enum class EBufferMode : uint32_t {
     StreamDraw = GL_STREAM_DRAW,
     StaticDraw = GL_STATIC_DRAW,
@@ -65,6 +66,17 @@ public:
         glBufferData(static_cast<uint32_t>(MType), Elements.size() * sizeof(TElementType), Elements.data(), static_cast<uint32_t>(MMode));
     }
 
+    inline virtual void Read(std::vector<TElementType> &Elements)
+    {
+        uint32_t BufferSize = 0;
+        glGetBufferParameteriv(static_cast<uint32_t>(MType), GL_BUFFER_SIZE, reinterpret_cast<GLint*>(&BufferSize));
+        
+        uint64_t ElementCount = BufferSize / sizeof(TElementType);
+        Elements.reserve(ElementCount);
+
+        glGetBufferSubData(static_cast<uint32_t>(MType), 0, BufferSize, Elements.data());
+    }
+
     inline virtual void Unbind() override
     {
         glBindBuffer(static_cast<uint32_t>(MType), 0);
@@ -79,7 +91,7 @@ public:
     {
         return MMode;
     }
-
+    
     inline void SetMode(EBufferMode Mode)
     {
         MMode = Mode;
@@ -89,7 +101,7 @@ public:
     {
         return MType;
     }
-
+    
     inline void SetType(EBufferType Type)
     {
         MType = Type;

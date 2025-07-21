@@ -12,7 +12,7 @@
 #include "DeviceBuffer.h"
 #include "Texture.h"
 
-#define PIPELINE_STAGE_COUNT 5
+#define EN_PIPELINE_STAGE_COUNT 5
 
 
 enum class EShaderType : uint16_t {
@@ -24,7 +24,7 @@ enum class EShaderType : uint16_t {
     None = 0
 };
 
-
+// Not used yet, expansion in future
 typedef struct SPipelineState {
     uint8_t DepthTest = 1;
     uint8_t CullFace = 1;
@@ -35,7 +35,7 @@ typedef struct SPipelineState {
 
 class CPipeline : public CRenderObject, public CHandle {
 private:
-    std::array<uint32_t, PIPELINE_STAGE_COUNT> Stages;
+    std::array<CHandle, EN_PIPELINE_STAGE_COUNT> Stages;
 
 private:
     const char *GetShaderTypeString(EShaderType Type);
@@ -49,7 +49,7 @@ public:
     void RemoveStage(EShaderType Type);
 
     int32_t GetUniformLocation(const char *UniformName);
-    void SetUniform(CTexture *Value, const char *UniformName);
+    void SetUniform(CTexture &Value, const char *UniformName);
     void SetUniform(float Value, const char *UniformName);
     void SetUniform(int32_t Value, const char *UniformName);
     void SetUniform(uint32_t Value, const char *UniformName);
