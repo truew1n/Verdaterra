@@ -66,8 +66,15 @@ void CTexture::Create(const char *Filepath)
 	stbi_image_free(TextureData);
 }
 
+void CTexture::Bind()
+{
+	glActiveTexture(GL_TEXTURE0 + MUnit);
+	glBindTexture(GL_TEXTURE_2D, MId);
+}
+
 void CTexture::SetTextureParameter(ETextureParameter Type, ETextureParameterValue Value)
 {
+	 
 	glTexParameteri(GL_TEXTURE_2D, static_cast<GLenum>(Type), static_cast<GLint>(Value));
 }
 
@@ -89,12 +96,6 @@ uint32_t CTexture::GetUnit() const
 uint32_t CTexture::GetChannels() const
 {
 	return MChannels;
-}
-
-void CTexture::Bind()
-{
-	glActiveTexture(GL_TEXTURE0 + MUnit);
-	glBindTexture(GL_TEXTURE_2D, MId);
 }
 
 void CTexture::Unbind()

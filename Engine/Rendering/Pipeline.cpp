@@ -68,18 +68,11 @@ void CPipeline::Bind()
 {
     glUseProgram(MId);
 
-    // Just for now
     glEnable(GL_DEPTH_TEST);
 
     glEnable(GL_CULL_FACE);
     glCullFace(GL_BACK);
     glFrontFace(GL_CCW);
-
-}
-
-void CPipeline::Unbind()
-{
-    glUseProgram(0);
 }
 
 void CPipeline::AddStage(const char *Filepath, EShaderType Type)
@@ -132,11 +125,11 @@ int32_t CPipeline::GetUniformLocation(const char *UniformName)
 void CPipeline::SetUniform(CTexture &Value, const char *UniformName)
 {
     int32_t UniformLocation = GetUniformLocation(UniformName);
-
     glUniform1i(UniformLocation, Value.GetUnit());
 }
 
-void CPipeline::SetUniform(float Value, const char *UniformName) {
+void CPipeline::SetUniform(float Value, const char *UniformName)
+{
     int32_t UniformLocation = GetUniformLocation(UniformName);
     glUniform1f(UniformLocation, Value);
 }
@@ -178,7 +171,7 @@ void CPipeline::SetUniform(glm::ivec2 &Value, const char *UniformName)
 }
 
 void CPipeline::SetUniform(glm::ivec3 &Value, const char *UniformName)
-{
+{ 
     int32_t UniformLocation = GetUniformLocation(UniformName);
     glUniform3iv(UniformLocation, 1, glm::value_ptr(Value));
 }
@@ -259,6 +252,12 @@ void CPipeline::SetUniform(glm::mat4 &Value, const char *UniformName)
 {
     int32_t UniformLocation = GetUniformLocation(UniformName);
     glUniformMatrix4fv(UniformLocation, 1, GL_FALSE, glm::value_ptr(Value));
+}
+
+
+void CPipeline::Unbind()
+{
+    glUseProgram(0);
 }
 
 void CPipeline::Destroy()

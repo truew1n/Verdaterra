@@ -35,7 +35,6 @@ public:
 	inline virtual void Create() override
     {
         glGenVertexArrays(1, &MId);
-    
 	}
 
 	inline virtual void Bind() override
@@ -43,21 +42,21 @@ public:
 		glBindVertexArray(MId);
 	}
 
-	void LinkAttribute(uint32_t Layout, uint32_t Count, EVertexComponentType Type, uint8_t Normalized, uint64_t Stride, void *Offset)
+	inline void LinkAttribute(uint32_t Layout, uint32_t Count, EVertexComponentType Type, uint8_t Normalized, uint64_t Stride, void *Offset)
     {
-        uint8_t ConstNormalized = GL_FALSE * !Normalized + GL_TRUE * Normalized;
-        glVertexAttribPointer(Layout, Count, static_cast<uint32_t>(Type), ConstNormalized, static_cast<GLsizei>(Stride), Offset);
-        glEnableVertexAttribArray(Layout);
+		uint8_t ConstNormalized = GL_FALSE * !Normalized + GL_TRUE * Normalized;
+		glVertexAttribPointer(Layout, Count, static_cast<uint32_t>(Type), ConstNormalized, static_cast<GLsizei>(Stride), Offset);
+		glEnableVertexAttribArray(Layout);
     }
 
-	void Unbind()
+	inline virtual void Unbind() override
     {
-        glBindVertexArray(0);
+		glBindVertexArray(0);
     }
 
 	inline virtual void Destroy() override
     {
-        glDeleteVertexArrays(1, &MId);
+		glDeleteVertexArrays(1, &MId);
     }
 };
 

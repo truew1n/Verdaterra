@@ -73,9 +73,10 @@ int main() {
     glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
 
     GLFWmonitor *Monitor = glfwGetPrimaryMonitor();
-    const GLFWvidmode *VideoMode = glfwGetVideoMode(Monitor);
+    //const GLFWvidmode *VideoMode = glfwGetVideoMode(Monitor);
 
-    GLFWwindow *Window = glfwCreateWindow(VideoMode->width, VideoMode->height, "Verdaterra", Monitor, NULL);
+    //GLFWwindow *Window = glfwCreateWindow(VideoMode->width, VideoMode->height, "Verdaterra", Monitor, NULL);
+    GLFWwindow *Window = glfwCreateWindow(1280, 720, "Verdaterra", NULL, NULL);
 
     if (!Window) {
         glfwTerminate();
@@ -217,12 +218,14 @@ int main() {
             DefaultPipeline.SetUniform(Materials[I], "UColorDiffuse");
             Meshes[I].Bind();
             Meshes[I].Draw();
+            Meshes[I].Unbind();
         }
 
         DefaultPipeline.SetUniform(Model2, "UTransform");
         DefaultPipeline.SetUniform(PlaneColor, "UColorDiffuse");
         Plane.Bind();
         Plane.Draw();
+        Plane.Unbind();
 
         glfwSwapBuffers(Window);
         glfwPollEvents();
@@ -230,7 +233,7 @@ int main() {
 
     DefaultPipeline.Unbind();
     DefaultPipeline.Destroy();
-    for (TMesh<SVertex, uint32_t> &Mesh : Meshes) {
+    for (DMesh &Mesh : Meshes) {
         Mesh.Destroy();
     }
     Plane.Destroy();
