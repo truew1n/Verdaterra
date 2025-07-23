@@ -13,13 +13,23 @@ uint32_t CTexture::GetNextUnit()
 
 void CTexture::Create()
 {
+	Create(ETextureType::Texture2D);
+}
+
+void CTexture::Create(ETextureType Type)
+{
 	MUsage = ETextureUsage::None;
 	MUnit = GetNextUnit();
 
-	glGenTextures(1, &MId);
+	glCreateTextures(static_cast<uint32_t>(Type), 1, &MId);
 }
 
 void CTexture::Create(const char *Filepath)
+{
+	Create(Filepath, ETextureType::Texture2D);
+}
+
+void CTexture::Create(const char *Filepath, ETextureType Type)
 {
 	MUsage = ETextureUsage::None;
 	int32_t TextureWidth, TextureHeight;
@@ -33,12 +43,10 @@ void CTexture::Create(const char *Filepath)
 		);
 		return;
 	}
-	
+
 	MUnit = GetNextUnit();
 
-	glGenTextures(1, &MId);
-	glActiveTexture(GL_TEXTURE0 + MUnit);
-	glBindTexture(GL_TEXTURE_2D, MId);
+	glCreateTextures(static_cast<uint32_t>(Type), 1, &MId);
 
 	SetTextureParameter(ETextureParameter::MinFilter, ETextureParameterValue::LinearMipMapLinear);
 	SetTextureParameter(ETextureParameter::MagFilter, ETextureParameterValue::Linear);
@@ -48,34 +56,36 @@ void CTexture::Create(const char *Filepath)
 
 	switch (MChannels) {
 		case 4: {
-			glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, TextureWidth, TextureHeight, 0, GL_RGBA, GL_UNSIGNED_BYTE, TextureData);
+			glTextureStorage2D(MId, 1, GL_RGBA, TextureWidth, TextureHeight);
+			glTextureSubImage2D(MId, 0, 0, 0, TextureWidth, TextureHeight, GL_RGBA, GL_UNSIGNED_BYTE, TextureData);
 			break;
 		}
 		case 3: {
-			glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, TextureWidth, TextureHeight, 0, GL_RGB, GL_UNSIGNED_BYTE, TextureData);
+			glTextureStorage2D(MId, 1, GL_RGB, TextureWidth, TextureHeight);
+			glTextureSubImage2D(MId, 0, 0, 0, TextureWidth, TextureHeight, GL_RGB, GL_UNSIGNED_BYTE, TextureData);
 			break;
 		}
 		case 1: {
-			glTexImage2D(GL_TEXTURE_2D, 0, GL_RED, TextureWidth, TextureHeight, 0, GL_RED, GL_UNSIGNED_BYTE, TextureData);
+			glTextureStorage2D(MId, 1, GL_RED, TextureWidth, TextureHeight);
+			glTextureSubImage2D(MId, 0, 0, 0, TextureWidth, TextureHeight, GL_RED, GL_UNSIGNED_BYTE, TextureData);
 			break;
 		}
 	}
 
-	glGenerateMipmap(GL_TEXTURE_2D);
+	glGenerateTextureMipmap(MId);
 
 	stbi_image_free(TextureData);
 }
 
 void CTexture::Bind()
 {
-	glActiveTexture(GL_TEXTURE0 + MUnit);
-	glBindTexture(GL_TEXTURE_2D, MId);
+	glBindTextureUnit(MUnit, MId);
 }
 
 void CTexture::SetTextureParameter(ETextureParameter Type, ETextureParameterValue Value)
 {
 	 
-	glTexParameteri(GL_TEXTURE_2D, static_cast<GLenum>(Type), static_cast<GLint>(Value));
+	glTextureParameteri(MId, static_cast<uint32_t>(Type), static_cast<uint32_t>(Value));
 }
 
 ETextureUsage CTexture::GetUsage() const
@@ -100,7 +110,7 @@ uint32_t CTexture::GetChannels() const
 
 void CTexture::Unbind()
 {
-	glBindTexture(GL_TEXTURE_2D, 0);
+	glBindTextureUnit(MUnit, 0);
 }
 
 void CTexture::Destroy()

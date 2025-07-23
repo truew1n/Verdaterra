@@ -53,33 +53,24 @@ public:
     {
         MMode = EBufferMode::None;
         MType = EBufferType::None;
-        glGenBuffers(1, &MId);
-    }
-
-    inline virtual void Bind() override
-    {
-        glBindBuffer(static_cast<uint32_t>(MType), MId);
+        glCreateBuffers(1, &MId);
     }
 
     inline virtual void Write(const std::vector<TElementType> &Elements)
     {
-        glBufferData(static_cast<uint32_t>(MType), Elements.size() * sizeof(TElementType), Elements.data(), static_cast<uint32_t>(MMode));
+        glNamedBufferData(MId, Elements.size() * sizeof(TElementType), Elements.data(), static_cast<uint32_t>(MMode));
     }
 
     inline virtual void Read(std::vector<TElementType> &Elements)
     {
+        
         uint32_t BufferSize = 0;
-        glGetBufferParameteriv(static_cast<uint32_t>(MType), GL_BUFFER_SIZE, reinterpret_cast<GLint*>(&BufferSize));
+        glGetNamedBufferParameteriv(MId, GL_BUFFER_SIZE, reinterpret_cast<GLint *>(&BufferSize));
         
         uint64_t ElementCount = BufferSize / sizeof(TElementType);
         Elements.reserve(ElementCount);
 
-        glGetBufferSubData(static_cast<uint32_t>(MType), 0, BufferSize, Elements.data());
-    }
-
-    inline virtual void Unbind() override
-    {
-        glBindBuffer(static_cast<uint32_t>(MType), 0);
+        glGetNamedBufferSubData(MId, 0, BufferSize, Elements.data());
     }
 
     inline virtual void Destroy() override

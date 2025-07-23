@@ -8,7 +8,9 @@
 
 #include <array>
 
+#include "RenderObject.h"
 #include "Handle.h"
+#include "Bind.h"
 #include "DeviceBuffer.h"
 #include "Texture.h"
 
@@ -33,7 +35,7 @@ typedef struct SPipelineState {
 } SPipelineState;
 
 
-class CPipeline : public CRenderObject, public CHandle {
+class CPipeline : public CRenderObject, public CHandle, public IBind {
 private:
     std::array<CHandle, EN_PIPELINE_STAGE_COUNT> Stages;
 

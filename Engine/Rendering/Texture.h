@@ -4,7 +4,25 @@
 #include <glad/glad.h>
 #include "stb_image.h"
 
+#include "RenderObject.h"
+#include "Handle.h"
+#include "Bind.h"
 #include "DeviceBuffer.h"
+
+
+enum class ETextureType : uint32_t {
+	Texture1D = GL_TEXTURE_1D,
+	Texture2D = GL_TEXTURE_2D,
+	Texture3D = GL_TEXTURE_3D,
+	Texture1DArray = GL_TEXTURE_1D_ARRAY,
+	Texture2DArray = GL_TEXTURE_2D_ARRAY,
+	TextureRectangle = GL_TEXTURE_RECTANGLE,
+	TextureCubeMap = GL_TEXTURE_CUBE_MAP,
+	TextureCubeMapArray = GL_TEXTURE_CUBE_MAP_ARRAY,
+	TextureBuffer = GL_TEXTURE_BUFFER,
+	Texture2DMultisample = GL_TEXTURE_2D_MULTISAMPLE,
+	Texture2DMultisampleArray = GL_TEXTURE_2D_MULTISAMPLE_ARRAY
+};
 
 
 enum class ETextureParameter : uint32_t {
@@ -45,7 +63,7 @@ enum class ETextureParameter : uint32_t {
 };
 
 
-enum class ETextureParameterValue : int32_t {
+enum class ETextureParameterValue : uint32_t {
 	Nearest = GL_NEAREST,
 	Linear = GL_LINEAR,
 	NearestMipMapNearest = GL_NEAREST_MIPMAP_NEAREST,
@@ -61,7 +79,7 @@ enum class ETextureParameterValue : int32_t {
 };
 
 
-enum class ETextureUsage : int8_t {
+enum class ETextureUsage : uint8_t {
 	Diffuse = 1,
 	Specular = 2,
 	Ambient = 3,
@@ -91,7 +109,7 @@ enum class ETextureUsage : int8_t {
 };
 
 
-class CTexture : public CRenderObject, public CHandle {
+class CTexture : public CRenderObject, public CHandle, public IBind {
 private:
 	inline static uint32_t MMaxUnit = 0;
 
@@ -103,7 +121,9 @@ private:
 	uint32_t GetNextUnit();
 public:
 	virtual void Create() override;
+	virtual void Create(ETextureType Type);
 	virtual void Create(const char *Filepath);
+	virtual void Create(const char *Filepath, ETextureType Type);
 	virtual void Bind() override;
 
 	void SetTextureParameter(ETextureParameter Type, ETextureParameterValue Value);

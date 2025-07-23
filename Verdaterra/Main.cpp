@@ -1,5 +1,4 @@
-#include "iostream"
-
+﻿#include "iostream"
 #include "Rendering/Mesh.h"
 #include "Rendering/Pipeline.h"
 #include "Rendering/Texture.h"
@@ -21,7 +20,7 @@ float LastX = 1280.0f / 2.0f;
 float LastY = 720.0f / 2.0f;
 bool FirstMouse = true;
 
-float CameraSpeed = 0.005f;
+float CameraSpeed = 4.0f;
 float MouseSensitivity = 0.1f;
 
 inline void MouseCallback(GLFWwindow *Window, double X, double Y)
@@ -66,26 +65,30 @@ int main() {
     CLogger::GetInstance().AddOutput(&ConsoleOut);
     CLogger::GetInstance().SetLevel(ELogLevel::Debug);
 
-    if (!glfwInit()) return -1;
+    if (!glfwInit()) {
+        LOG_CRITICAL("Failed to initialize GLFW");
+        return -1;
+    }
 
     glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 4);
     glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 6);
+    glfwWindowHint(GLFW_SAMPLES, 8);
     glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
 
     GLFWmonitor *Monitor = glfwGetPrimaryMonitor();
-    //const GLFWvidmode *VideoMode = glfwGetVideoMode(Monitor);
+    const GLFWvidmode *VideoMode = glfwGetVideoMode(Monitor);
 
-    //GLFWwindow *Window = glfwCreateWindow(VideoMode->width, VideoMode->height, "Verdaterra", Monitor, NULL);
-    GLFWwindow *Window = glfwCreateWindow(1280, 720, "Verdaterra", NULL, NULL);
+    GLFWwindow *Window = glfwCreateWindow(VideoMode->width, VideoMode->height, "Verdaterra", Monitor, NULL);
 
     if (!Window) {
+        LOG_CRITICAL("Failed to create GLFW window");
         glfwTerminate();
         return -1;
     }
 
     glfwMakeContextCurrent(Window);
     if (!gladLoadGLLoader(reinterpret_cast<GLADloadproc>(glfwGetProcAddress))) {
-        std::cerr << "Failed to initialize GLAD" << std::endl;
+        LOG_CRITICAL("Failed to initialize GLAD");
         return -1;
     }
 
@@ -104,7 +107,7 @@ int main() {
             aiProcess_Triangulate |
             aiProcess_GenBoundingBoxes |
             aiProcess_SortByPType
-        )
+            )
     );
 
     uint32_t MeshCount = AssimpScene->mNumMeshes;
@@ -114,20 +117,20 @@ int main() {
     std::vector<glm::vec4> Materials(MaterialCount);
 
     std::vector<SLinkRule> LinkRules = {
-        SLinkRule(0, 3, EVertexComponentType::Float32, false, (void *) offsetof(SVertex, MPosition)),
-        SLinkRule(1, 3, EVertexComponentType::Float32, false, (void *) offsetof(SVertex, MNormal)),
-        SLinkRule(2, 2, EVertexComponentType::Float32, false, (void *) offsetof(SVertex, MUV))
+        SLinkRule(0, 3, EVertexComponentType::Float32, false, offsetof(SVertex, MPosition)),
+        SLinkRule(1, 3, EVertexComponentType::Float32, false, offsetof(SVertex, MNormal)),
+        SLinkRule(2, 2, EVertexComponentType::Float32, false, offsetof(SVertex, MUV))
     };
 
     for (uint32_t I = 0; I < MeshCount; ++I) {
         aiMesh *AssimpMesh = AssimpScene->mMeshes[I];
-        
+
         int32_t VertexCount = AssimpMesh->mNumVertices;
 
         std::vector<SVertex> Vertices(VertexCount);
         for (int32_t V = 0; V < VertexCount; ++V) {
-            glm::vec3 Location = *((glm::vec3 *) &AssimpMesh->mVertices[V]);
-            glm::vec3 Normal = *((glm::vec3 *) &AssimpMesh->mNormals[V]);
+            glm::vec3 Location = *((glm::vec3 *)&AssimpMesh->mVertices[V]);
+            glm::vec3 Normal = *((glm::vec3 *)&AssimpMesh->mNormals[V]);
             glm::vec2 UV = glm::vec2(1.0f);
             if (AssimpMesh->HasTextureCoords(0)) {
                 UV = glm::vec2(AssimpMesh->mTextureCoords[0][V].x, AssimpMesh->mTextureCoords[0][V].y);
@@ -149,7 +152,7 @@ int main() {
         }
 
         aiMaterial *AssimpMaterial = AssimpScene->mMaterials[AssimpMesh->mMaterialIndex];
-        
+
         aiColor4D DiffuseColor;
         AssimpMaterial->Get(AI_MATKEY_COLOR_DIFFUSE, DiffuseColor);
 
@@ -174,11 +177,17 @@ int main() {
 
     Plane.Create();
     Plane.Write(PlaneVertices, PlaneIndices, LinkRules, EBufferMode::StaticDraw);
-    
+
 
     glm::mat4 Projection = glm::perspective(glm::radians(90.0f), 1280.0f / 720.0f, 0.1f, 1000.0f);
     glm::mat4 Model1 = glm::rotate(glm::mat4(1.0f), glm::radians(-90.0f), glm::vec3(1.0f, 0.0f, 0.0f));
-    glm::mat4 Model2 = glm::scale(glm::mat4(1.0f), glm::vec3(10.0f, 10.0f, 10.0f));
+    glm::mat4 Model2 = glm::scale(glm::mat4(1.0f), glm::vec3(40.0f, 40.0f, 40.0f));
+
+    glm::vec4 LightColor = glm::vec4(1.0);
+    glm::vec3 LightPosition = glm::vec3(-4.0f, 2.0f, 0.0f);
+    glm::vec3 initialLightPos = glm::vec3(-4.0f, 2.0f, 0.0f);
+    float angle = 0.0f;
+    float rotationSpeed = 0.628f; // Approx. 1 rotation every 10 seconds (2π / 10)
 
     CPipeline DefaultPipeline;
     DefaultPipeline.Create();
@@ -188,15 +197,80 @@ int main() {
     DefaultPipeline.Bind();
     DefaultPipeline.SetUniform(0, "UBTexture");
     DefaultPipeline.SetUniform(Projection, "UProjection");
-    DefaultPipeline.SetUniform(Model1, "UTransform");
+    DefaultPipeline.SetUniform(LightColor, "ULightColor");
+    DefaultPipeline.SetUniform(LightPosition, "ULightPosition");
 
-    float deltaTime = 0.0f;
-    float lastFrameTime = 0.0f;
-    float currentFrameTime = static_cast<float>(glfwGetTime());
-    deltaTime = currentFrameTime - lastFrameTime;
-    lastFrameTime = currentFrameTime;
-    
+    unsigned int ShadowMapFBO;
+    glGenFramebuffers(1, &ShadowMapFBO);
+
+    unsigned int ShadowMapWidth = 2048, ShadowMapHeight = 2048;
+    unsigned int ShadowMap;
+    glGenTextures(1, &ShadowMap);
+    glBindTexture(GL_TEXTURE_2D, ShadowMap);
+    glTexImage2D(GL_TEXTURE_2D, 0, GL_DEPTH_COMPONENT, ShadowMapWidth, ShadowMapHeight, 0, GL_DEPTH_COMPONENT, GL_FLOAT, NULL);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_BORDER);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_BORDER);
+
+    float ClampColor[] = { 1.0f, 1.0f, 1.0f, 1.0f };
+    glTexParameterfv(GL_TEXTURE_2D, GL_TEXTURE_BORDER_COLOR, ClampColor);
+
+    glBindFramebuffer(GL_FRAMEBUFFER, ShadowMapFBO);
+    glFramebufferTexture2D(GL_FRAMEBUFFER, GL_DEPTH_ATTACHMENT, GL_TEXTURE_2D, ShadowMap, 0);
+
+    glDrawBuffer(GL_NONE);
+    glReadBuffer(GL_NONE);
+    glBindFramebuffer(GL_FRAMEBUFFER, 0);
+
+    glm::mat4 OrthgonalProjection = glm::ortho(-5.0f, 5.0f, -5.0f, 5.0f, 0.1f, 75.0f);
+    glm::mat4 LightView = glm::lookAt(LightPosition, glm::vec3(0.0f, 0.0f, 0.0f), glm::vec3(0.0f, 1.0f, 0.0f));
+    glm::mat4 LightProjection = OrthgonalProjection * LightView;
+
+    CPipeline ShadowMapPipeline;
+    ShadowMapPipeline.Create();
+    ShadowMapPipeline.AddStage("Assets/Shaders/ShadowMap.vert", EShaderType::Vertex);
+    ShadowMapPipeline.AddStage("Assets/Shaders/ShadowMap.frag", EShaderType::Fragment);
+
+    float lastFrameTime = static_cast<float>(glfwGetTime());
+
     while (!glfwWindowShouldClose(Window)) {
+        float currentFrameTime = static_cast<float>(glfwGetTime());
+        float deltaTime = currentFrameTime - lastFrameTime;
+        lastFrameTime = currentFrameTime;
+
+        // Update light position to rotate around (0,0,0)
+        angle += rotationSpeed * deltaTime;
+        glm::mat4 rotation = glm::rotate(glm::mat4(1.0f), angle, glm::vec3(0.0f, 1.0f, 0.0f));
+        LightPosition = glm::vec3(rotation * glm::vec4(initialLightPos, 1.0f));
+        LightView = glm::lookAt(LightPosition, glm::vec3(0.0f, 0.0f, 0.0f), glm::vec3(0.0f, 1.0f, 0.0f));
+        LightProjection = OrthgonalProjection * LightView;
+
+        // Shadow Pass
+        ShadowMapPipeline.Bind();
+        ShadowMapPipeline.SetUniform(LightProjection, "ULightProjection");
+        glEnable(GL_DEPTH_TEST);
+
+        glViewport(0, 0, ShadowMapWidth, ShadowMapHeight);
+        glBindFramebuffer(GL_FRAMEBUFFER, ShadowMapFBO);
+        glClear(GL_DEPTH_BUFFER_BIT);
+
+        ShadowMapPipeline.SetUniform(Model1, "UTransform");
+        for (uint32_t I = 0; I < MeshCount; ++I) {
+            Meshes[I].Bind();
+            Meshes[I].Draw();
+            Meshes[I].Unbind();
+        }
+
+        ShadowMapPipeline.SetUniform(Model2, "UTransform");
+        Plane.Bind();
+        Plane.Draw();
+        Plane.Unbind();
+
+        glBindFramebuffer(GL_FRAMEBUFFER, 0);
+
+        // Base Pass
+        glViewport(0, 0, VideoMode->width, VideoMode->height);
         glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
         if (glfwGetKey(Window, GLFW_KEY_W) == GLFW_PRESS)
@@ -210,17 +284,27 @@ int main() {
         if (glfwGetKey(Window, GLFW_KEY_ESCAPE) == GLFW_PRESS)
             glfwSetWindowShouldClose(Window, true);
 
+        DefaultPipeline.Bind();
+        DefaultPipeline.SetUniform(LightProjection, "ULightProjection");
+        DefaultPipeline.SetUniform(LightPosition, "ULightPosition"); // Update light position each frame
+
         glm::mat4 View = glm::lookAt(CameraPosition, CameraPosition + CameraForward, CameraUp);
         DefaultPipeline.SetUniform(View, "UView");
-        
+        DefaultPipeline.SetUniform(CameraPosition, "UCameraPosition");
+
         DefaultPipeline.SetUniform(Model1, "UTransform");
         for (uint32_t I = 0; I < MeshCount; ++I) {
+            DefaultPipeline.SetUniform(0, "UBTexture");
             DefaultPipeline.SetUniform(Materials[I], "UColorDiffuse");
             Meshes[I].Bind();
             Meshes[I].Draw();
             Meshes[I].Unbind();
         }
-
+        glActiveTexture(GL_TEXTURE0 + 2);
+        glBindTexture(GL_TEXTURE_2D, ShadowMap);
+        uint32_t Location = DefaultPipeline.GetUniformLocation("UShadowMap");
+        glUniform1i(Location, 2);
+        DefaultPipeline.SetUniform(0, "UBTexture");
         DefaultPipeline.SetUniform(Model2, "UTransform");
         DefaultPipeline.SetUniform(PlaneColor, "UColorDiffuse");
         Plane.Bind();

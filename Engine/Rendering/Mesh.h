@@ -4,25 +4,17 @@
 #include <vector>
 
 #include "RenderObject.h"
+#include "Bind.h"
 #include "VertexArray.h"
 
 
-typedef struct SLinkRule {
-    uint32_t Layout;
-    uint32_t Count;
-    EVertexComponentType Type;
-    uint8_t Normalized;
-    void *Offset;
-} SLinkRule;
-
-
 template<typename TVertexType, typename TIndexType>
-class TMesh : public CRenderObject {
+class TMesh : public CRenderObject, public IBind {
 private:
     EBufferMode MMode;
     uint32_t MPolygonCount;
     
-    TVertexArray<TVertexType> MVertexArray;
+    TVertexArray<TVertexType, TIndexType> MVertexArray;
     TDeviceBuffer<TVertexType> MVertexBuffer;
     TDeviceBuffer<TIndexType> MElementBuffer;
 
@@ -46,20 +38,15 @@ public:
         MVertexBuffer.SetModeAndType(Mode, EBufferType::ArrayBuffer);
         MElementBuffer.SetModeAndType(Mode, EBufferType::ElementArrayBuffer);
 
-        MVertexArray.Bind();
-        MVertexBuffer.Bind();
-        MElementBuffer.Bind();
-
         MVertexBuffer.Write(Vertices);
         MElementBuffer.Write(Indices);
 
         for (const SLinkRule &LinkRule : LinkRules) {
-            MVertexArray.LinkAttribute(LinkRule.Layout, LinkRule.Count, LinkRule.Type, LinkRule.Normalized, sizeof(TVertexType), LinkRule.Offset);
+            MVertexArray.LinkAttribute(LinkRule);
         }
 
-        MVertexArray.Unbind();
-        MElementBuffer.Unbind();
-        MVertexBuffer.Unbind();
+        MVertexArray.LinkVertexBuffer(MVertexBuffer);
+        MVertexArray.LinkElementBuffer(MElementBuffer);
 
         MMode = Mode;
         MPolygonCount = static_cast<uint32_t>(Indices.size());

@@ -7,10 +7,13 @@ layout (location = 2) in vec2 LUV;
 out vec3 EPosition;
 out vec3 ENormal;
 out vec2 EUV;
+out vec4 ELightFragmentPosition;
 
 uniform mat4 UProjection;
 uniform mat4 UView;
 uniform mat4 UTransform;
+uniform mat4 ULightProjection;
+
 
 void main()
 {
@@ -19,6 +22,7 @@ void main()
     EPosition = WorldPosition.xyz;
     ENormal = LNormal;
     EUV = LUV;
+    ELightFragmentPosition = ULightProjection * WorldPosition;
 
     gl_Position = UProjection * UView * WorldPosition;
 }

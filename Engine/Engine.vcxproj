@@ -152,6 +152,7 @@
     </ProjectReference>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClInclude Include="Bind.h" />
     <ClInclude Include="Rendering\Handle.h" />
     <ClInclude Include="Rendering\RenderObject.h" />
     <ClInclude Include="Memory\StaticAllocator.h" />

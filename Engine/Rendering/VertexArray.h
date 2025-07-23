@@ -5,6 +5,9 @@
 #include <glm/glm.hpp>
 #include <glm/gtc/type_ptr.hpp>
 
+#include "RenderObject.h"
+#include "Handle.h"
+#include "Bind.h"
 #include "DeviceBuffer.h"
 
 
@@ -29,12 +32,21 @@ enum class EVertexComponentType : uint32_t {
 };
 
 
-template<typename T>
-class TVertexArray : public CRenderObject, public CHandle {
+typedef struct SLinkRule {
+	uint32_t Layout;
+	uint32_t Count;
+	EVertexComponentType Type;
+	uint8_t Normalized;
+	uint32_t Offset;
+} SLinkRule;
+
+
+template<typename TVertexType, typename TIndexType>
+class TVertexArray : public CRenderObject, public CHandle, public IBind {
 public:
 	inline virtual void Create() override
     {
-        glGenVertexArrays(1, &MId);
+		glCreateVertexArrays(1, &MId);
 	}
 
 	inline virtual void Bind() override
@@ -42,12 +54,23 @@ public:
 		glBindVertexArray(MId);
 	}
 
-	inline void LinkAttribute(uint32_t Layout, uint32_t Count, EVertexComponentType Type, uint8_t Normalized, uint64_t Stride, void *Offset)
+	inline void LinkAttribute(const SLinkRule &LinkRule)
     {
-		uint8_t ConstNormalized = GL_FALSE * !Normalized + GL_TRUE * Normalized;
-		glVertexAttribPointer(Layout, Count, static_cast<uint32_t>(Type), ConstNormalized, static_cast<GLsizei>(Stride), Offset);
-		glEnableVertexAttribArray(Layout);
+		uint8_t ConstNormalized = GL_FALSE * !LinkRule.Normalized + GL_TRUE * LinkRule.Normalized;
+		glEnableVertexArrayAttrib(MId, LinkRule.Layout);
+		glVertexArrayAttribBinding(MId, LinkRule.Layout, 0);
+		glVertexArrayAttribFormat(MId, LinkRule.Layout, LinkRule.Count, static_cast<uint32_t>(LinkRule.Type), ConstNormalized, LinkRule.Offset);
     }
+
+	inline void LinkVertexBuffer(const TDeviceBuffer<TVertexType> &VertexBuffer)
+	{
+		glVertexArrayVertexBuffer(MId, 0, VertexBuffer.GetId(), 0, sizeof(TVertexType));
+	}
+
+	inline void LinkElementBuffer(const TDeviceBuffer<TIndexType> &ElementBuffer)
+	{
+		glVertexArrayElementBuffer(MId, ElementBuffer.GetId());
+	}
 
 	inline virtual void Unbind() override
     {

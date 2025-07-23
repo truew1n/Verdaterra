@@ -70,6 +70,8 @@ void CPipeline::Bind()
 
     glEnable(GL_DEPTH_TEST);
 
+    glEnable(GL_MULTISAMPLE);
+
     glEnable(GL_CULL_FACE);
     glCullFace(GL_BACK);
     glFrontFace(GL_CCW);
@@ -258,7 +260,7 @@ void CPipeline::SetUniform(glm::mat4 &Value, const char *UniformName)
 void CPipeline::Unbind()
 {
     glUseProgram(0);
-}
+}   
 
 void CPipeline::Destroy()
 {
