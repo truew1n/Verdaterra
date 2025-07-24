@@ -56,6 +56,11 @@ public:
         glCreateBuffers(1, &MId);
     }
 
+    inline virtual void Bind(uint32_t Index)
+    {
+        glBindBufferBase(static_cast<uint32_t>(MType), Index, MId);
+    }
+
     inline virtual void Write(const std::vector<TElementType> &Elements)
     {
         glNamedBufferData(MId, Elements.size() * sizeof(TElementType), Elements.data(), static_cast<uint32_t>(MMode));
@@ -71,6 +76,11 @@ public:
         Elements.reserve(ElementCount);
 
         glGetNamedBufferSubData(MId, 0, BufferSize, Elements.data());
+    }
+
+    inline virtual void Unbind(uint32_t Index)
+    {
+        glBindBufferBase(static_cast<uint32_t>(MType), Index, 0);
     }
 
     inline virtual void Destroy() override

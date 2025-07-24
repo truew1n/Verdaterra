@@ -239,7 +239,6 @@ int main() {
         float deltaTime = currentFrameTime - lastFrameTime;
         lastFrameTime = currentFrameTime;
 
-        // Update light position to rotate around (0,0,0)
         angle += rotationSpeed * deltaTime;
         glm::mat4 rotation = glm::rotate(glm::mat4(1.0f), angle, glm::vec3(0.0f, 1.0f, 0.0f));
         LightPosition = glm::vec3(rotation * glm::vec4(initialLightPos, 1.0f));
@@ -286,7 +285,7 @@ int main() {
 
         DefaultPipeline.Bind();
         DefaultPipeline.SetUniform(LightProjection, "ULightProjection");
-        DefaultPipeline.SetUniform(LightPosition, "ULightPosition"); // Update light position each frame
+        DefaultPipeline.SetUniform(LightPosition, "ULightPosition");
 
         glm::mat4 View = glm::lookAt(CameraPosition, CameraPosition + CameraForward, CameraUp);
         DefaultPipeline.SetUniform(View, "UView");
