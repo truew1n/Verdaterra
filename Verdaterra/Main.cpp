@@ -234,10 +234,14 @@ int main() {
 
     float lastFrameTime = static_cast<float>(glfwGetTime());
 
+    glEnable(GL_CULL_FACE);
+
     while (!glfwWindowShouldClose(Window)) {
         float currentFrameTime = static_cast<float>(glfwGetTime());
         float deltaTime = currentFrameTime - lastFrameTime;
         lastFrameTime = currentFrameTime;
+
+        glCullFace(GL_FRONT);
 
         angle += rotationSpeed * deltaTime;
         glm::mat4 rotation = glm::rotate(glm::mat4(1.0f), angle, glm::vec3(0.0f, 1.0f, 0.0f));
@@ -261,15 +265,16 @@ int main() {
             Meshes[I].Unbind();
         }
 
-        ShadowMapPipeline.SetUniform(Model2, "UTransform");
+       /* ShadowMapPipeline.SetUniform(Model2, "UTransform");
         Plane.Bind();
         Plane.Draw();
-        Plane.Unbind();
+        Plane.Unbind();*/
 
         glBindFramebuffer(GL_FRAMEBUFFER, 0);
-
+        
         // Base Pass
         glViewport(0, 0, VideoMode->width, VideoMode->height);
+        glCullFace(GL_BACK);
         glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
         if (glfwGetKey(Window, GLFW_KEY_W) == GLFW_PRESS)
