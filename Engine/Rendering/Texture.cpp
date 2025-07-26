@@ -1,7 +1,7 @@
 #include "Texture.h"
 #include <iostream>
 
-#include "Utils/Logger.h"
+#include "Util/Logger.h"
 
 uint32_t CTexture::GetNextUnit()
 {
@@ -48,11 +48,11 @@ void CTexture::Create(const char *Filepath, ETextureType Type)
 
 	glCreateTextures(static_cast<uint32_t>(Type), 1, &MId);
 
-	SetTextureParameter(ETextureParameter::MinFilter, ETextureParameterValue::LinearMipMapLinear);
-	SetTextureParameter(ETextureParameter::MagFilter, ETextureParameterValue::Linear);
+	SetMinFilter(ETextureMinFilter::LinearMipMapLinear);
+	SetMagFilter(ETextureMagFilter::Linear);
 
-	SetTextureParameter(ETextureParameter::WrapU, ETextureParameterValue::Repeat);
-	SetTextureParameter(ETextureParameter::WrapV, ETextureParameterValue::Repeat);
+	SetHorizontalWrap(ETextureWrap::Repeat);
+	SetVerticalWrap(ETextureWrap::Repeat);
 
 	switch (MChannels) {
 		case 4: {
@@ -82,15 +82,34 @@ void CTexture::Bind()
 	glBindTextureUnit(MUnit, MId);
 }
 
-void CTexture::SetTextureParameter(ETextureParameter Type, ETextureParameterValue Value)
+void CTexture::SetMinFilter(ETextureMinFilter Value)
 {
-	 
-	glTextureParameteri(MId, static_cast<uint32_t>(Type), static_cast<uint32_t>(Value));
+	glTextureParameteri(MId, GL_TEXTURE_MIN_FILTER, static_cast<uint32_t>(Value));
+}
+
+void CTexture::SetMagFilter(ETextureMagFilter Value)
+{
+	glTextureParameteri(MId, GL_TEXTURE_MAG_FILTER, static_cast<uint32_t>(Value));
+}
+
+void CTexture::SetHorizontalWrap(ETextureWrap Value)
+{
+	glTextureParameteri(MId, GL_TEXTURE_WRAP_S, static_cast<uint32_t>(Value));
+}
+
+void CTexture::SetVerticalWrap(ETextureWrap Value)
+{
+	glTextureParameteri(MId, GL_TEXTURE_WRAP_T, static_cast<uint32_t>(Value));
 }
 
 ETextureUsage CTexture::GetUsage() const
 {
 	return MUsage;
+}
+
+ETextureFormat CTexture::GetFormat() const
+{
+	return MFormat;
 }
 
 void CTexture::SetUsage(ETextureUsage Usage)

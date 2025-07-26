@@ -9,19 +9,18 @@
 #include "RenderObject.h"
 #include "Handle.h"
 
-
 enum class EBufferMode : uint32_t {
-    StreamDraw = GL_STREAM_DRAW,
     StaticDraw = GL_STATIC_DRAW,
     DynamicDraw = GL_DYNAMIC_DRAW,
+    StreamDraw = GL_STREAM_DRAW,
 
-    StreamRead = GL_STREAM_READ,
     StaticRead = GL_STATIC_READ,
     DynamicRead = GL_DYNAMIC_READ,
+    StreamRead = GL_STREAM_READ,
 
-    StreamCopy = GL_STREAM_COPY,
     StaticCopy = GL_STATIC_COPY,
     DynamicCopy = GL_DYNAMIC_COPY,
+    StreamCopy = GL_STREAM_COPY,
     None = 0
 };
 
@@ -68,7 +67,6 @@ public:
 
     inline virtual void Read(std::vector<TElementType> &Elements)
     {
-        
         uint32_t BufferSize = 0;
         glGetNamedBufferParameteriv(MId, GL_BUFFER_SIZE, reinterpret_cast<GLint *>(&BufferSize));
         

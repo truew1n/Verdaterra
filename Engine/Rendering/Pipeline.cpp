@@ -3,7 +3,7 @@
 #include <fstream>
 #include <filesystem>
 
-#include "Utils/Logger.h"
+#include "Util/Logger.h"
 
 const char *CPipeline::GetShaderTypeString(EShaderType Type)
 {

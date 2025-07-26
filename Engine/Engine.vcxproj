@@ -155,7 +155,7 @@
     <ClInclude Include="Bind.h" />
     <ClInclude Include="Rendering\Handle.h" />
     <ClInclude Include="Rendering\RenderObject.h" />
-    <ClInclude Include="Memory\StaticAllocator.h" />
+    <ClInclude Include="Memory\LinearAllocator.h" />
     <ClInclude Include="Utils\Logger.h" />
     <ClInclude Include="Rendering\Pipeline.h" />
     <ClInclude Include="Rendering\Mesh.h" />

@@ -42,7 +42,7 @@
     <ClInclude Include="Rendering\Handle.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="Memory\StaticAllocator.h">
+    <ClInclude Include="Memory\LinearAllocator.h">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="Bind.h">

@@ -2,7 +2,7 @@
 #include "Rendering/Mesh.h"
 #include "Rendering/Pipeline.h"
 #include "Rendering/Texture.h"
-#include "Utils/Logger.h"
+#include "Util/Logger.h"
 
 #include <assimp/Importer.hpp>
 #include <assimp/scene.h>
@@ -187,7 +187,7 @@ int main() {
     glm::vec3 LightPosition = glm::vec3(-4.0f, 2.0f, 0.0f);
     glm::vec3 initialLightPos = glm::vec3(-4.0f, 2.0f, 0.0f);
     float angle = 0.0f;
-    float rotationSpeed = 0.628f; // Approx. 1 rotation every 10 seconds (2π / 10)
+    float rotationSpeed = 0.628f;
 
     CPipeline DefaultPipeline;
     DefaultPipeline.Create();

@@ -9,6 +9,17 @@
 #include "Bind.h"
 #include "DeviceBuffer.h"
 
+enum class ETextureFormat : uint32_t {
+	Red = GL_RED,
+	RedGreen = GL_RG,
+	RedGreenBlue = GL_RGB,
+	BlueGreenRed = GL_BGR,
+	RedGreenBlueAlpha = GL_RGBA,
+	BlueGreenRedAlpha = GL_BGRA,
+	Depth = GL_DEPTH_COMPONENT,
+	Stencil = GL_STENCIL_INDEX
+};
+
 
 enum class ETextureType : uint32_t {
 	Texture1D = GL_TEXTURE_1D,
@@ -25,52 +36,60 @@ enum class ETextureType : uint32_t {
 };
 
 
+enum class ETextureComponentType : uint32_t {
+	UInt8 = GL_UNSIGNED_BYTE,
+	Int8 = GL_BYTE,
+	UInt16 = GL_UNSIGNED_SHORT,
+	Int16 = GL_SHORT,
+	UInt32 = GL_UNSIGNED_INT,
+	Int32 = GL_INT,
+	Float32 = GL_FLOAT,
+
+	UInt8_3_3_2 = GL_UNSIGNED_BYTE_3_3_2,
+	UInt8_2_3_3_Rev = GL_UNSIGNED_BYTE_2_3_3_REV,
+
+	UInt16_5_6_5 = GL_UNSIGNED_SHORT_5_6_5,
+	UInt16_5_6_5_Rev = GL_UNSIGNED_SHORT_5_6_5_REV,
+
+	UInt16_4_4_4_4 = GL_UNSIGNED_SHORT_4_4_4_4,
+	UInt16_4_4_4_4_Rev = GL_UNSIGNED_SHORT_4_4_4_4_REV,
+
+	UInt16_5_5_5_1 = GL_UNSIGNED_SHORT_5_5_5_1,
+	UInt16_1_5_5_5_Rev = GL_UNSIGNED_SHORT_1_5_5_5_REV,
+
+	UInt32_8_8_8_8 = GL_UNSIGNED_INT_8_8_8_8,
+	UInt32_8_8_8_8_Rev = GL_UNSIGNED_INT_8_8_8_8_REV,
+
+	UInt32_10_10_10_2 = GL_UNSIGNED_INT_10_10_10_2,
+	UInt32_2_10_10_10_Rev = GL_UNSIGNED_INT_2_10_10_10_REV
+};
+
+
 enum class ETextureParameter : uint32_t {
-	/*
-		Possible values (ETextureParameterValue):
-		- Nearest
-		- Linear
-		- NearestMipMapNearest
-		- LinearMipMapNearest
-		- NearestMipMapLinear
-		- LinearMipMapLinear
-	*/
 	MinFilter = GL_TEXTURE_MIN_FILTER,
-	/*
-		Possible values (ETextureParameterValue):
-		- Nearest
-		- Linear
-	*/
 	MagFilter = GL_TEXTURE_MAG_FILTER,
-	/*
-		Possible values (ETextureParameterValue):
-		- ClampToEdge
-		- ClampToBorder
-		- MirroredRepeat
-		- Repeat
-		- MirrorClampToEdge
-	*/
 	WrapU = GL_TEXTURE_WRAP_S,
-	/*
-		Possible values (ETextureParameterValue):
-		- ClampToEdge
-		- ClampToBorder
-		- MirroredRepeat
-		- Repeat
-		- MirrorClampToEdge
-	*/
 	WrapV = GL_TEXTURE_WRAP_T
 };
 
 
-enum class ETextureParameterValue : uint32_t {
+enum class ETextureMinFilter {
 	Nearest = GL_NEAREST,
 	Linear = GL_LINEAR,
 	NearestMipMapNearest = GL_NEAREST_MIPMAP_NEAREST,
 	LinearMipMapNearest = GL_LINEAR_MIPMAP_NEAREST,
 	NearestMipMapLinear = GL_NEAREST_MIPMAP_LINEAR,
-	LinearMipMapLinear = GL_LINEAR_MIPMAP_LINEAR,
+	LinearMipMapLinear = GL_LINEAR_MIPMAP_LINEAR
+};
 
+
+enum class ETextureMagFilter {
+	Nearest = GL_NEAREST,
+	Linear = GL_LINEAR
+};
+
+
+enum class ETextureWrap {
 	ClampToEdge = GL_CLAMP_TO_EDGE,
 	ClampToBorder = GL_CLAMP_TO_BORDER,
 	MirroredRepeat = GL_MIRRORED_REPEAT,
@@ -113,6 +132,7 @@ class CTexture : public CRenderObject, public CHandle, public IBind {
 private:
 	inline static uint32_t MMaxUnit = 0;
 
+	ETextureFormat MFormat;
 	ETextureUsage MUsage;
 	uint32_t MUnit;
 
@@ -124,11 +144,21 @@ public:
 	virtual void Create(ETextureType Type);
 	virtual void Create(const char *Filepath);
 	virtual void Create(const char *Filepath, ETextureType Type);
+
+	virtual void Create(ETextureFormat Format);
+	virtual void Create(ETextureType Type, ETextureFormat Format);
+	virtual void Create(const char *Filepath, ETextureFormat Format);
+	virtual void Create(const char *Filepath, ETextureType Type, ETextureFormat Format);
+
 	virtual void Bind() override;
 
-	void SetTextureParameter(ETextureParameter Type, ETextureParameterValue Value);
+	void SetMinFilter(ETextureMinFilter Value);
+	void SetMagFilter(ETextureMagFilter Value);
+	void SetHorizontalWrap(ETextureWrap Value);
+	void SetVerticalWrap(ETextureWrap Value);
 	
 	ETextureUsage GetUsage() const;
+	ETextureFormat GetFormat() const;
 	void SetUsage(ETextureUsage Usage);
 	uint32_t GetUnit() const;
 	uint32_t GetChannels() const;
